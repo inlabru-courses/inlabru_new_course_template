@@ -3,10 +3,9 @@
 ## -----------------------------------------------------------------------------
 #| message: false
 #| warning: false
-library(CARBayesdata)
 
-data(pollutionhealthdata)
-data(GGHB.IZ)
+load(here::here("datasets/pollutionhealthdata.RData"))
+
 
 
 
@@ -61,10 +60,9 @@ library(dplyr)
 ## -----------------------------------------------------------------------------
 #| message: false
 #| warning: false
-library(sdmTMB)
 
-pcod_df = sdmTMB::pcod 
-qcs_grid = sdmTMB::qcs_grid
+load(here::here("datasets/pcod.RData"))
+
 
 
 
@@ -158,15 +156,22 @@ library(scico) # for colouring palettes
 # Data manipulation
 library(dplyr)
 
-
+# Spatial Data manipulation
+library(sf)
 
 
 ## -----------------------------------------------------------------------------
 #| message: false
 #| warning: false
-library(sf)
-shp_SGC <-  st_read("datasets/SG_CairngormsNationalPark/SG_CairngormsNationalPark_2010.shp",quiet =T)
+#| eval: false
+#| 
 
+# shp_SGC <-  st_read("datasets/SG_CairngormsNationalPark/SG_CairngormsNationalPark_2010.shp",quiet =T)
+# 
+
+
+## -----------------------------------------------------------------------------
+load(here::here("datasets/SG_CairngormsNationalPark_2010.RData"))
 
 
 ## -----------------------------------------------------------------------------

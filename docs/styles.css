@@ -192,7 +192,7 @@ h2::after {
 }
 
 /* ── Per-page banner images (set via body-classes in each .qmd) ──── */
-body.home-page       #title-block-header { background-image: url(Image/navarra.jpg); }
+body.home-page       #title-block-header { background-image: url(Image/banner.png); }
 /* ── Page layout ─────────────────────────────────────────────────── */
 #quarto-content main {
   padding-top: 2.2rem;

@@ -30,8 +30,7 @@ website:
     logo: Image/INLA_logo.png
     right:
     - text: GitHub
-      href: https://github.com/inlabru-courses/Pamplona2026
-      icon: brands/github
+      href: https://github.com/ # replace with github repo URL
     left:
     - text: Home
       href: index.qmd

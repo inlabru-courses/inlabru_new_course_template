@@ -11,6 +11,8 @@ library(inlabru)
 library(sf)
 library(terra)
 library(tidyverse)
+library(fmesher)
+library(tidyterra)
 
 # load some libraries to generate nice map plots
 library(scico)
@@ -52,6 +54,152 @@ lik_gaus = bru_obs(formula = y_gaus ~ Intercept_gaus + covariate,
 lik_pois = bru_obs(formula = y_pois ~ Intercept_pois + covariate,
                     data = df,
                    family = "poisson")
+
+
+
+
+## -----------------------------------------------------------------------------
+#| message: false
+#| warning: false
+
+load(here::here("datasets/pcod.RData"))
+
+pcod_df = pcod_df %>% filter(year==2003)
+pcod_sf =   st_as_sf(pcod_df, coords = c("lon","lat"), crs = 4326)
+pcod_sf = st_transform(pcod_sf,
+                       crs = "+proj=utm +zone=9 +datum=WGS84 +no_defs +type=crs +units=km" )
+
+depth_r <- rast(qcs_grid, type = "xyz")
+crs(depth_r) <- crs(pcod_sf)
+
+
+
+
+## -----------------------------------------------------------------------------
+#| echo: false
+#| message: false
+#| eval: true
+#| fig-align: center
+#| fig-width: 6
+#| fig-height: 6
+#| fig-cap: "Map of the locations where Pacfic Cod were caught and the depth if the study area"
+#| label: fig-pcod_map
+#| code-fold: true
+
+
+
+ggplot()+
+  geom_spatraster(data=depth_r$depth)+
+      geom_sf(data=pcod_sf,aes(color=factor(present))) +
+    scale_color_manual(name="Locations where Pacific Cod \nwere caught",
+                     values = c("black","orange"),
+                     labels= c("Absence","Presence"))+
+  scale_fill_scico(name = "Depth",
+                   palette = "nuuk",
+                   na.value = "transparent" ) + xlab("") + ylab("")
+
+
+
+## -----------------------------------------------------------------------------
+#| warning: false
+#| message: false
+
+mesh = fm_mesh_2d(loc = pcod_sf,           # Build the mesh
+                  cutoff = 2,
+                  max.edge = c(10,20),     # The largest allowed triangle edge length.
+                  offset = c(5,50))        # The automatic extension distance
+
+
+spde_model =  inla.spde2.pcmatern(mesh,
+                                   prior.sigma = c(1, 0.5),
+                                   prior.range = c(100, 0.5))
+
+
+
+## -----------------------------------------------------------------------------
+#| warning: false
+#| message: false
+
+
+cmp_hurdle <- ~
+  Intercept_biomass(1) +
+    depth_biomass(depth_scaled, model = "linear") +
+    depth2_biomass(depth_scaled2, model = "linear") +
+    space_biomass(geometry, model = spde_model) +
+    Intercept_caught(1) +
+    depth_caught(depth_scaled, model = "linear") +
+    depth2_caught(depth_scaled2, model = "linear") +
+    space_caught(geometry, model = spde_model)
+
+
+
+## -----------------------------------------------------------------------------
+#| warning: false
+#| message: false
+
+
+biomass_obs <- bru_obs(formula = density ~  Intercept_biomass + depth_biomass + depth2_biomass + space_biomass,
+      family = "lognormal",
+      data = pcod_sf  %>% filter(density>0))
+
+presence_obs <- bru_obs(formula = present ~ Intercept_caught + depth_caught + depth2_caught +
+                          space_caught,
+  family = "binomial",
+  data = pcod_sf,
+)
+
+fit_hurdle <- bru(
+  cmp_hurdle,
+  biomass_obs,
+  presence_obs
+)
+
+
+
+## -----------------------------------------------------------------------------
+tidy(fit_hurdle)
+tidy(fit_hurdle,"hyperpar")
+
+
+## -----------------------------------------------------------------------------
+
+cmp_joint <- ~
+  Intercept_biomass(1) +
+    depth_biomass(depth_scaled, model = "linear") +
+    depth2_biomass(depth_scaled2, model = "linear") +
+    Intercept_caught(1) +
+    depth_caught(depth_scaled, model = "linear") +
+    depth2_caught(depth_scaled2, model = "linear") +
+    space(geometry, model = spde_model) +
+    space_copy(geometry, copy = "space", fixed = FALSE)
+
+
+
+## -----------------------------------------------------------------------------
+
+biomass_obs <- bru_obs(formula = density ~  Intercept_biomass + depth_biomass + depth2_biomass + space,
+      family = "lognormal",
+      data = pcod_sf  %>% filter(density>0))
+
+presence_obs <- bru_obs(formula = present ~ Intercept_caught + depth_caught + depth2_caught +space_copy,
+  family = "binomial",
+  data = pcod_sf,
+)
+
+
+
+## -----------------------------------------------------------------------------
+
+fit_hurdle_shared <- bru(
+  cmp_joint,
+  biomass_obs,
+  presence_obs
+)
+
+
+
+
+
 
 
 

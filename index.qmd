@@ -1,6 +1,6 @@
 ---
-title: "Spatio-temporal models with `inlabru`"
-subtitle: "19–22 October 2026 • Pamplona, Spain<br>Jafet Belmont · Sara Martino · Janine Illian"
+title: "`inlabru` workshop template"
+subtitle: "D/M/Y  • City, Country<br>Jafet Belmont · Sara Martino · Janine Illian"
 title-block-banner: "#00000000"
 title-block-banner-color: "white"
 format:
@@ -12,14 +12,20 @@ format:
     number-sections: true
 editor_options: 
   chunk_output_type: console
+params:
+  city: "CITY"
+  country: "COUNTRY"
+  year: 2026
+  month: "MONTH"
+  days: "1-4"
+  base_url: "https://inlabru-courses.github.io/"
 ---
-
 
 
 # Welcome to the course!
 
--   Welcome to the `inlabru` workshop in Pamplona!
--   The aim of this workshop is to introduce you to a range of statistical modelling approaches, in particular the temporal, spatial and spatio-temporal modelling as implemented in the `inlabru` package.
+-   Welcome to the `inlabru` workshop!
+-   The aim of this workshop is to . . .
 -   Workshop materials are available in the github repository
 
 ::: {.callout-warning}
@@ -33,10 +39,10 @@ editor_options:
 
 At the end of the workshop, participants will have an understanding of:
 
--   the motivation for and the challenges of analysing and modelling spatial data
--   statistical models used to analyse spatial and spatio-temporal data
--   the implementation of these models in the `inlabru` package
--   how to independently analyse spatial data with `inlabru`
+-   ILO1
+-   ILO2
+-   ILO3
+-   ILO4
 
 # Intended audience
 
@@ -53,7 +59,7 @@ No knowledge of `R-INLA` or `inlabru` is required.
 
 
 ::: panel-tabset
-### Monday 19$^{th}$ 
+### Day 1
 
 : {.striped .hover}
 
@@ -71,7 +77,7 @@ No knowledge of `R-INLA` or `inlabru` is required.
 | 15:45  - 17:00 | [**Session 3**: Time Series Models](slides/slides_3.html)|
 
 
-### Tuesday 20$^{th}$ 
+### Day 2
 
 : {.striped .hover}
 
@@ -88,7 +94,7 @@ No knowledge of `R-INLA` or `inlabru` is required.
 | 15:45 - 17:00 | [**Session 5**: Areal processes](slides/slides_areal.html) |
 
 
-###	Wednesday 21$^{st}$
+###	Day 3
 
 : {.striped .hover}
 
@@ -107,7 +113,7 @@ No knowledge of `R-INLA` or `inlabru` is required.
 
 
 
-### Thursday 22$^{nd}$
+### Day 4
 
 : {.striped .hover}
 
@@ -133,8 +139,26 @@ No knowledge of `R-INLA` or `inlabru` is required.
 # Citation
 
 
-```{=html}
-<div class="modal fade" id="cite-info" tabindex="-1" aria-hidden="true">
+```{r}
+#| echo: false
+#| results: asis
+
+date_full <- paste(params$days, params$month, params$year)
+cite_key  <- paste0("Belmont", params$year, "inlabru")
+
+bibtex <- sprintf(
+'@Manual{%s,
+  title  = {inlabruCourse%s%s: Course Materials for %s inlabru Course %s},
+  author = {Belmont, Jafet and Martino, Sara and Illian, Janine},
+  year   = {%s},
+  url    = {%s}
+}',
+  cite_key, params$month, params$year, params$city, date_full,
+  params$year, params$base_url
+)
+
+modal_html <- sprintf(
+'<div class="modal fade" id="cite-info" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -142,29 +166,29 @@ No knowledge of `R-INLA` or `inlabru` is required.
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <pre><code class="language-bibtex">@Manual{Belmont2026inlabru,
-  title  = {inlabruCourseMarch2026: Course Materials for Pamplona inlabru Course 19-22 October 2026},
-  author = {Belmont, Jafet and Martino, Sara and Illian, Janine},
-  year   = {2026},
-  url    = {https://inlabru-courses.github.io/Pamplona2026/}
-}</code></pre>
+        <pre><code class="language-bibtex">%s</code></pre>
       </div>
     </div>
   </div>
-</div>
+</div>', bibtex)
 
+# wrap in a raw-HTML fence so Pandoc renders it as HTML, not text
+cat("```{=html}\n", modal_html, "\n```\n", sep = "")
 ```
+
 
 <button type="button" class="venue-info-link" data-bs-toggle="modal" data-bs-target="#cite-info">
 ::: venue-card
-Belmont J., Martino S., Illian, J. F (2026). _inlabru Course October 2026: Course Materials for Pamplona inlabru 19-22 October 2026_.
-https://inlabru-courses.github.io/Pamplona2026/
+Belmont J., Martino S., Illian, J. F (`r params$year`). _inlabru Course `r params$month` `r params$year`: Course Materials for `r params$city` inlabru `r params$days` `r params$month` `r params$year`_.
+`r params$base_url`
 :::
 </button>
 
 
 
-
 # Contact {#sec-contact}
 
-Questions about the workshop? Join the discussion on [GitHub Discussions space](https://github.com/inlabru-courses/Pamplona2026/discussions)
+**UPDATE with git-specific discussion forum**
+Questions about the workshop? Join the discussion on [GitHub Discussions space](`r params$base_url`)
+
+

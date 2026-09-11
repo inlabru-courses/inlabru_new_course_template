@@ -119,7 +119,6 @@ library(INLA)
 library(ggplot2)
 library(patchwork) 
 library(inlabru)
-library(DAAG)
 
 
 ## -----------------------------------------------------------------------------
