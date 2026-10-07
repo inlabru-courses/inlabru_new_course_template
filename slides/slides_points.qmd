@@ -880,7 +880,7 @@ ggplot() +
 ```
 
 :::{.callout-note}
-Note that the mean field is, by definition, smoother than any realization of the field. Instead we can draw simulations of the filed from the posterior distribution using the `generate()` function.
+Note that the mean field is, by definition, smoother than any realization of the field. Instead we can draw simulations of the field from the posterior distribution using the `generate()` function.
 :::
 
 ##  Posterior quantities {.smaller}
@@ -919,18 +919,18 @@ ggplot(data = data.frame(N = as.vector(N_fires))) +
 
 
 
-## Summary of points
+## Take-home messages
 
 ::: incremental
--   Point process are a stochastic processes that describe the locations where events occur
+-   Point processes are a stochastic processes that describe the locations where events occur
 
--   Unlike geostatistical data where the locations are fixed, here the locations have a stochastic nature *the locations are our data*!
+-   Unlike geostatistical data where the locations are fixed, here the locations have a stochastic nature; *the locations are our data*!
 
--   IPP allows the intensity of the point process to vary across space through spatially varying covariates.
+-   IPPs allow the intensity of the point process to vary across space through spatially varying covariates.
 
 -   Numerical integration schemes are required to estimate the parameters of an IPP
 
--   LGCP are a double stochastic process that extend IPP models by allowing the intensity function to vary spatially according to a structured spatial random effect
+-   LGCP are a doubly stochastic process that extends IPP models by allowing the intensity function to vary spatially according to a structured spatial random effect
 :::
 
 

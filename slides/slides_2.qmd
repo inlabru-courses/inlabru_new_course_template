@@ -147,15 +147,15 @@ The basic syntax for components is:
 )
 ```
 
- - `my_component_name`: this  is a user-chosen label for the model component. This is then used as input in `predict()` and `generate()`.
- - `main`: here we   define the input data for the component. 
+ - `my_component_name`: this is a user-chosen label for the model component. This is then used as input in `predict()` and `generate()`.
+ - `main`: here we define the input data for the component. 
  - `model`: The type of model component see `?component`, and `?INLA::inla.list.models()$latent`.
  
 . . .
 
 **Examples**
 
-- `beta_0(1)` or `Intercept(1)` define one intercept
+- `beta_0(1)` or `Intercept(1)` define one intercept.
 - `cov_effect(altitude, model= "linear")` defines the linear effect of `altitude` on the predictor.
 - `time_effect(time, model= "rw2")` defines the smooth effect of `time` on the predictor.
 
@@ -225,7 +225,7 @@ fit = bru(cmp, lik)
 
 . . .
 
-1.  You *don't have to* define a formula outside of the `bru_obs()` function ...it can be defines also inside the function!
+1.  You *don't have to* define a formula outside of the `bru_obs()` function ...it can also be defined inside the function!
 
 ```{r}
 #| echo: true
@@ -245,9 +245,9 @@ lik = bru_obs(formula = y~  beta0 + beta1,
 
 - `inlabru` provides a dedicated term, `Intercept()`, for specifying an intercept that is shared across all data.
 
-- When this term is omitted, a common intercept is added by default, unless the formula or component explicitly includes `-1`.
+- When this term is omitted, a common intercept is added by default, unless the formula or component explicitly includes `-1`. This will be come relevant later, when we look at models with multiple likelihoods.
 
-## One wrong and two correct  ways of coding{.smaller}
+## One wrong way and two correct ways of coding{.smaller}
 
 ```{r}
 df = data.frame(covariate = runif(100))
@@ -297,7 +297,7 @@ round(m1$summary.fixed[,c(1,2)],3)
 
 . . .
 
-Let's look at the `iris` dataset that is in `R`
+Let's look at the `iris` dataset available in `R`
 
 ```{r}
 
@@ -309,8 +309,8 @@ head(iris)
 
 We want to fit a model where `Species` is the only covariate.
 
-  - `Species` has three categories: `setosa`, `versicolor` and `virginica`
-  - We want to model it as a factor effect
+  - `Species` has three categories: `setosa`, `versicolor` and `virginica`.
+  - We want to model it as a factor effect.
 
 ```{r}
 #| echo: true
@@ -352,8 +352,8 @@ fit1$summary.random$spp[,c(1:3)]
 
 :::{.callout-note}
 
-- `spp(~ Species, model = "fixed")` is a `lm` style model definition! So  an intercept is automatically included
-- The results are stored in the `summary.random` part of the model, not the `summary.fixed`
+- `spp(~ Species, model = "fixed")` is an `lm`-style model definition! So  an intercept is automatically included.
+- The results are stored in the `summary.random` part of the model, not the `summary.fixed`.
 
 :::
 
@@ -456,12 +456,12 @@ cmp1 = ~ -1 + spp(main = ~ MatrixModels::model.Matrix(Species, .data.),
 
 ## Interactions of linear covariates in `inlabru`{.smaller}
 
-Here the easiest option is to use again the `fixed` model type.
+Here the easiest option is to again use the `fixed` model type.
 
 . . . 
 
 
-Say we want to fit a model with interactions between (**categorical**) `Species` and and (**continuous**) `Petal.Length`.
+Say, we want to fit a model with interactions between (**categorical**) `Species` and (**continuous**) `Petal.Length`.
 
 
 ::: {.panel-tabset}
@@ -497,7 +497,7 @@ fit$summary.random$fixed_effects$sd
 ::: {style="font-size: 0.85em;"}
 We can also use the idea that "fixed effects are just random effects with fixed precision" :smile:
 
-**NOTE:** This idea can be very useful in more complex contexts where the `fixed` model does not work (for example if one wants to have  spatially varying effect of a covariate!)
+**NOTE:** This idea can be very useful in more complex contexts, where the `fixed` model does not work (for example if one wants to have  spatially varying effect of a covariate!)
 
 
 Let's look at the interaction between  (**categorical**) `Species` and (**continuous**) `Petal.Length`.
@@ -547,7 +547,7 @@ do.call("rbind",fit$summary.random)[,c(1,2)]
 ## `lm` 
 
 
-Compare with the `lm` results
+Compare this with the `lm` results
 
 ```{r}
 #| echo: true
@@ -673,7 +673,7 @@ tidy(result,effects = "hyperpar")
 ```
 
 :::{.fragment}
-future version will incorporate summaries for random effects
+future versions will incorporate summaries for random effects
 :::
 
 ## `inlabru` integration with `tidy` {.smaller auto-animate=true}
@@ -819,7 +819,7 @@ augmented <- augment(
 
 :::{.fragment}
 
-What can you put on `pred_formula`?
+What can you put in the `pred_formula`?
 
 :::{.incremental}
 - covariate can be accessed as `.data$x` 
@@ -839,7 +839,7 @@ What can you put on `pred_formula`?
 :::: {.column width="60%"}
 
 
-We can use `ggplot` to plot the fitted line with a credible bands:
+We can use `ggplot` to plot the fitted line with credible bands:
 
 ```{r}
 #| echo: true
@@ -881,9 +881,9 @@ ggplot() +
 
 ## `predict()` and `generate()` functions {.smaller}
 
-Often one wants more "complex" results from the model.
+Often, one wants more "complex" results from the model.
 
-For example if we fit to the `mtcar` data, the model
+For example if we fit the following model to the `mtcar` data
 
 $$
 \eta_i = \beta_{0,\text{Species}_i} +  \beta_{1,\text{Species}_i}\text{Petal Length}_i,\ i =1,\dots,n
@@ -903,7 +903,7 @@ To do this we can use the `predict()` and `generate()` functions.
 
 -   `predict()` *simulates* from the fitted posterior distribution $\pi(\mathbf{y}|\mathbf{u},\theta)$, computes what you ask and produces a summary of the samples (mean, sd, quantiles, etc)
 
--   `generate()` *simulates* from the fitted posterior distribution $\pi(\mathbf{y}|\mathbf{u},\theta)$, computes what you ask and return the samples!
+-   `generate()` *simulates* from the fitted posterior distribution $\pi(\mathbf{y}|\mathbf{u},\theta)$, computes what you ask and returns the samples!
 
 
 ## Example 1
@@ -1084,9 +1084,9 @@ data.frame(time = Tokyo$time, sapply(samples, function(x) x$probs)) %>%
 
 - Sometimes, one wants to sample directly from latent parameters
 without specifying any new input data (or, in other words, to sample with an identity projection
-matrix)
+matrix).
 
-- The keyword `_latent` can be appended to a latent component name to retrieve that
+- The keyword `_latent` can be appended to a latent component name to retrieve that.
 
 For example, the following code recovers the intercept and the time effect at day 13
 ```{r}
@@ -1096,7 +1096,7 @@ p = predict(fit, newdata = c(), ~ data.frame(int = Intercept_latent,
                                                       f_1 = time_latent[13]))
 ```
 
-**NOTE** Here the `newdata` is just an empty object
+**NOTE** Here `newdata` is just an empty object.
 
 
 
@@ -1104,9 +1104,9 @@ p = predict(fit, newdata = c(), ~ data.frame(int = Intercept_latent,
 
 ## Manipulating posterior marginals
 
-We can be interested in functions of the posterior marginals that are computed by the `bru()` function.
+We might be interested in functions of the posterior marginals that are computed by the `bru()` function.
 
-For example, we might want to :
+For example, we might want to:
 
 - compute the mean of a posterior marginal
 - compute the median of a posterior marginal
@@ -1117,7 +1117,7 @@ All this can be done with the help of the `inla.*marginal()` family of functions
 
 ## Example from the Tokyo example
 
-Obtain the posterior marginal for the _standard deviation_ of the random effect, compute it's mean and median and sample from it.
+Obtain the posterior marginal for the _standard deviation_ of the random effect, compute its mean and median and sample from it.
 
 
 :::: {.columns}
@@ -1190,7 +1190,7 @@ ggplot() + geom_line(data = post_sd, aes(x,y))  +
 
 ## Missing values in `inlabru`
 
-The `bru()` function treats missing values in the dataset differently according to their role in the model.
+The `bru()` function treats missing values in the dataset differently depending on their role in the model.
 
 Take the model definition:
 ```{r}

@@ -70,7 +70,7 @@ library(cowplot) # needs install.packages("magick") to draw images
 
 ## Motivation {.smaller}
 
-Data are often observed in time, and time dependence is often expected.
+Data are often observed in time, and observations at taken at similar points in time are often likely to be dependent.
 
 ```{r}
 #| fig-width: 8
@@ -120,7 +120,7 @@ pred %>% ggplot() + geom_line(aes(year, mean)) +
 
 . . .
 
-**Note:** We can use the same model to smooth covariate effects!
+**Note:** We can use the same approach to smooth covariate effects!
 
 ## What is our goal? {auto-animate="true"}
 
@@ -143,29 +143,29 @@ ggdraw() +  draw_plot(p1) + draw_image(question, scale = .4, y = 0.15, x=0.35)
 
 . . .
 
-We can "predict" any unobserved data, not only future data, e.g. gaps in the data etc.
+We can "predict" any unobserved data, not only future data, e.g.\ gaps in the data etc.
 
 ## Modelling time with INLA {auto-animate="true"}
 
 Time can be indexed over a
 
--   Discrete domain (e.g., years)
+-   discrete domain (e.g., years)
 
--   Continuous domain
+-   continuous domain
 
 ## Modelling time with INLA {auto-animate="true"}
 
 Time can be indexed over a
 
--   Discrete domain (e.g., years)
+-   discrete domain (e.g., years)
 
-    -   Main models: RW1, RW2 and AR1
+    -   main models: RW1, RW2 and AR1
 
-    -   **Note:** RW1 and RW2 are also used for smoothing covariates
+    -   **Note:** RW1 and RW2 are also used for smoothing covariates.
 
--   Continuous domain
+-   continuous domain
 
-    -   Here we use the so-called SPDE-approach (more on this later)
+    -   Here we use the so-called SPDE-approach (more on this later).
 
 # Discrete time modelling
 
@@ -217,7 +217,7 @@ ppreds %>%
 
 ```
 
-**Goal** we want understand the pattern and predict into the future
+**Goal** we want to understand the pattern and predict into the future.
 
 ## Random Walk models {.smaller}
 
@@ -268,9 +268,9 @@ ggplot(dd, aes(time, y)) +
 
 . . .
 
--   Random Walk of order 1 (RW1) we take the two nearest neighbours
+-   Random Walk of order 1 (RW1): we consider the two nearest neighbours
 
--   Random Walk of order 2 (RW2) we take the four nearest neighbours
+-   Random Walk of order 2 (RW2): we consider the four nearest neighbours
 
 ## Random walks of order 1 {auto-animate="true"}
 
@@ -323,8 +323,8 @@ Important things to understand (not just for RW1 mdoels!):
 
 We have talked about the **precision** matrix $\mathbf{Q}$ but...
 
--   what is it?
--   why we will keep talking about it?
+-   What is it?
+-   Why we will keep talking about it?
 -   What does it have to do the GMRF (and what are they)?
   
 
@@ -334,8 +334,8 @@ Let's start at the beginning :smiley:
 
 A **Gaussian distribution** $\mathbf{u}\sim\mathcal{N}(0,\Sigma)$ is controlled by:
 
-—  The mean vector $\mu$, which we have set equal to 0. This is the centre of the distribution
-—  The matrix $\Sigma$ describes all pairwise covariances $\Sigma_{ij} = \text{Cov}(u_i, u_j)$
+—  The mean vector $\mu$, which we have set equal to 0. This is the centre of the distribution.
+—  The matrix $\Sigma$ describes all pairwise covariances $\Sigma_{ij} = \text{Cov}(u_i, u_j)$.
 
 Formally
 
@@ -344,7 +344,7 @@ $$
 $$
 
 
-The **precision matrix** is inverse of the **covariance matrix**
+The **precision matrix** is the inverse of the **covariance matrix**
 
 $$
 \mathbf{Q} = \mathbf{\Sigma}^{-1}
@@ -357,13 +357,13 @@ $$
 | **mostly theoretical** | **mostly computational** |
 | Analytically tractable. | $\Sigma$ usually is large and **dense** |
 | We have a good understanding of its properties. | Computations scale as $\mathcal{O}(n^3)$ |
-| Basically, it’s easy to do the theory | Not feasible for large problems |
+| Basically, it’s easy to do the theory. | Not suitable for large problems. |
 
 . . .
 
 We need to reduce the computational burden !
 
-This can be done by using **sparse** matrices, ie matrices where a  lot of entries are exactly zero!!
+This can be done by using **sparse** matrices, i.e.\ matrices where a  lot of entries are exactly zero!!
 
 
 ## Two possible options
@@ -388,9 +388,9 @@ $$
 
     -   $\Sigma_{ij} = \text{Cov}(u_i, u_j)$ : Covariance between $u_i$ and $u_j$
     -   $\Sigma_{ij} = 0$ $\longrightarrow$ $u_i$ and $u_j$ are *independent*
-    -   A sparse covariance matrix implies that many elements of $\mathbf{u}$ are mutually independent.....is this desirable?
+    -   A sparse covariance matrix implies that many elements of $\mathbf{u}$ are mutually independent... Is this desirable?
 
-2.  Force the *precision* matrix $\mathbf{Q} = \Sigma^{-1}$ to be sparse
+2.  Force the *precision* matrix $\mathbf{Q} = \Sigma^{-1}$ to be sparse.
 
 ## Two possible options {auto-animate="true"}
 
@@ -402,16 +402,14 @@ $$
 
     -   $\Sigma_{ij} = \text{Cov}(u_i, u_j)$ : Covariance between $u_i$ and $u_j$
     -   $\Sigma_{ij} = 0$ $\longrightarrow$ $u_i$ and $u_j$ are *independent*
-    -   A sparse covariance matrix implies that many elements of $\mathbf{u}$ are mutually independent.....is this desirable?
+    -   A sparse covariance matrix implies that many elements of $\mathbf{u}$ are mutually independent... Is this desirable?
 
-2.  Force the *precision* matrix $\mathbf{Q} = \Sigma^{-1}$ to be sparse
+2.  Force the *precision* matrix $\mathbf{Q} = \Sigma^{-1}$ to be sparse.
 
     -   What does $Q_{ij}$ represents?
-    -   What does a sparse precision matrix implies?
+    -   What does a sparse precision matrix imply?
 
-
-
-## What does $Q_{ij}$ represents?
+## What does $Q_{ij}$ represent?
 
 $Q_{ij}$ is an element of the precision matrix 
 
@@ -459,7 +457,7 @@ $$
 ## GMRF and INLA
 
 -   Every component of the *latent Gaussian* field $\mathbf{u}$ in an INLA model is always a GMRF!!
--   We will see how the idea of GMRF expands also for continuously indexed processes (SPDE approach)
+-   We will see how the idea of GMRF expands also to continuously indexed processes (SPDE approach).
 
 ## Random walks of order 1 {auto-animate="true"}
 
@@ -515,7 +513,7 @@ ggplot() + geom_point(data = lakes, aes(year, Erie)) +
 
 We need to set a *prior distribution* for $\tau$.
 
-A common option is the so called *PC-priors*
+A common option are the so-called *PC-priors*
 
 ## Penalized Complexity (PC) priors {auto-animate="true"}
 
@@ -550,17 +548,17 @@ ggplot() + geom_point(data = lakes, aes(year, Erie)) +
 :::
 
 ::: {.column width="40%"}
--   A line is the *base model*
+-   A line is the *base model*.
 
--   We want to penalize more complex models
+-   We want to penalize more complex models.
 :::
 :::::
 
 ## Penalized Complexity (PC) priors {auto-animate="true"}
 
--   PC prior are easily available in `inlabru` for many model parameters
+-   PC priors are available in `inlabru` for many model parameters
 
--   They are built with two principle in mind:
+-   They are built with two principles in mind:
 
     1.  The prior **discourages overdispersion** by penalizing deviation from a *base model*
     2.  **User-defined** scaling
@@ -671,7 +669,7 @@ Important things to understand (not just for RW1 models!):
 
 1.  The (sparse) precision matrix
 2.  Role of the precision parameter $\tau$ and prior distribution
-3.  **RW as intrinsic model**
+3.  **RW as an intrinsic model**
 
 
 ## RW as intrinsic models {.smaller}
@@ -743,9 +741,9 @@ $$
 u_t = \text{mean}(u_{t-2} ,u_{t-1} , u_{t+1}, u_{t+2} ) + \text{some Gaussian error with precision  } \tau
 $$
 
--   RW2 are smoother than RW1
+-   RW2 yields smoother results than RW1.
 
--   The precision has the same role as for RW1
+-   The precision has the same role as for RW1.
 
 ## Example {.smaller}
 
@@ -797,24 +795,24 @@ ggplot()+ geom_line(data = pred1, aes(year, mean, color = "rw1")) +
 
 ## RW models as smoothers for covariates {.smaller}
 
--   RW models are discrete models
+-   RW models are discrete models.
 
--   Covariates are often recorded as continuous values
+-   Covariates are often recorded as continuous values.
 
--   The function `inla.group()` will bin covariate values into groups (default 25 groups)
+-   The function `inla.group()` bins covariate values into groups (default 25 groups).
 
 > `inla.group(x, n = 25, method = c("cut", "quantile"))`
 
 -   Two ways to bin
 
-    -   `cut` (default) splits the data using equal length intervals
+    -   `cut` (default) splits the data using equal-length intervals
     -   `quantile` uses equi-distant quantiles in the probability space.
 
 ## RW models as smoothers for covariates - Example
 
 ::::: columns
 ::: {.column width="50%"}
-The data are derived from an anthropometric study of 892 females under 50 years in three Gambian villages in West Africa.
+The data are derived from an study of 892 females under 50 years in three Gambian villages in West Africa.
 
 `Age` - Age of respondent (continuous)
 
@@ -880,7 +878,7 @@ pred %>% ggplot() +
 
 -   One hyperparameter: the precision $\tau$
 
-    -   Use PC prior for $\tau$
+    -   Use PC priors for $\tau$
 
 -   It is an *intrinsic* model
 
@@ -1104,7 +1102,7 @@ rbind(cbind(pred1, model = "rw1"),
 
 ## AR1 vs. RW models
 
--   RW1 models can be seen as a limit for AR1 models
+-   RW1 models can be seen as a limitof AR1 models
 
 -   They are not too different when smoothing, but can give different predictions.
 
@@ -1114,7 +1112,7 @@ rbind(cbind(pred1, model = "rw1"),
 
 -   Sometimes the data are not collected at discrete time points but over continuous time
 
--   One solution (not a bad one usually) is to discretize the time and use RW model (AR models are then harder to justify..)
+-   One solution (not a bad one usually) is to discretize the time and use RW model (AR models are then harder to justify...)
 
 -   A different solution is to use a continuous smoother based on a continuous Gaussian Random Field (GRF) $\omega(t)$
 
@@ -1341,14 +1339,14 @@ $$
 
 -   These parameters are linked to the parameters of the SPDE
 
--   We need to assign prior to them
+-   We need to assign priors to them
 
 ## PC priors for range and marginal variance
 
 Remember:
 
 -   PC priors penalize distance from a basis model
--   Are expressed in a user friendly way
+-   Are expressed in a user-friendly way
 
 . . .
 
@@ -1417,7 +1415,7 @@ p1 + p2
 
 ## In practice... {.smaller}
 
-If you want to use a continous model for time (or for smoothing a covariate) you need to:
+If you want to use a continuous model for time (or for smoothing a covariate) you need to:
 
 1.  Define a 1-dimensional mesh over the domain of interest (allowing for some buffer around your domain)
 

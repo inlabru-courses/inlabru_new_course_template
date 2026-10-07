@@ -81,9 +81,9 @@ library(inlabru)
 
 ## Metric Graph
 
--   Not all phenomena leave on $\mathcal{R}^2$
+-   Not all phenomena live on $\mathcal{R}^2$
 
--   Example: Traffic on roads, fishes in a river, etc...
+-   Example: Traffic on roads, fish in a river, etc...
 
 ::::: columns
 ::: {.column width="50%"}
@@ -103,11 +103,11 @@ library(inlabru)
 
 -   What is different from $\mathcal{R}^2$?
 
-    -   Think about distances on the road network...they often do not correspond to the euclidian distance in $\mathcal{R}^2$
+    -   Think about distances on the road network...they often do not correspond to the Euclidian distance in $\mathcal{R}^2$
 
 -   The random walk has to account for the shape of the graph
 
--   ..this is what the [MetricGraph library](https://davidbolin.github.io/MetricGraph/index.html) does
+-   ... this is what the [MetricGraph library](https://davidbolin.github.io/MetricGraph/index.html) does
 
 ## Non linear predictor
 
@@ -128,7 +128,7 @@ with parameters $(L,k,t)$
 
 . . .
 
-This model cannot be implemented in the original INLA framework. `inlabru` linearizes the problem and by an iterative prodedure is (*often*) able to estimate the parameters. You can read more [here](https://arxiv.org/abs/2407.00791)
+This model *cannot* be implemented in the original INLA framework. `inlabru` linearizes the problem and by an iterative prodedure is (*often*) able to estimate the parameters. You can read more here: [here](https://arxiv.org/abs/2407.00791)
 
 ## Space/time varying covariate effects
 
@@ -163,4 +163,4 @@ cmp = ~ Intercept(0) + space_beta(idx_region, weights = covariate, model = "besa
     -   INLA [forum](https://groups.google.com/g/r-inla-discussion-group)
     -   inlabru [forum](https://github.com/inlabru-org/inlabru/discussions)
 
--   Please take contact if you have questions/problems to discuss :grinning:
+-   Please get in touch if you have questions/problems to discuss :grinning:

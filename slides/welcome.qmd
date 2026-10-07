@@ -70,7 +70,7 @@ lecturer in statistics
 
 *University of Glasgow, Scotland*:
 
-spatial and spatio-temporal modelling in ecology citizen science, species distribution modelling
+spatial and spatio-temporal modelling in ecology, citizen science, species distribution modelling
 
 <br>
 
@@ -80,7 +80,7 @@ Professor in Statistical Sciences
 
 *University of Glasgow, Scotland*:
 
-spatial and spatio-temporal modelling: focus on spatial point processes strong inter-disciplinary focus, applications in ecology
+spatial and spatio-temporal modelling: focus on spatial point processes, strong inter-disciplinary focus, applications in ecology and beyond
 :::
 :::::
 
@@ -110,7 +110,7 @@ what is this course about?
 at the end of this course you will:
 
 ::: incremental
--   know basic and increasingly complex syntax structure that you can build on
+-   know basic and increasingly complex syntax structures that you can build on
 
 -   have an idea of
 

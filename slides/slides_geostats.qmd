@@ -137,16 +137,16 @@ $$
 y_i = Z(\mathbf{s}_i) + \varepsilon_i
 $$
 
-When geostatistical data are considered, we can often assume that there is a spatially continuous variable underlying the observations that can be modeled using a **random field**.
+When geostatistical data are considered, we can often assume that there is a spatially continuous variable underlying the observations that can be modelled using a **random field**.
 
 ::: incremental
 -   we have a process that is occurring everywhere in space $\rightarrow$ natural to try to model it using some sort of function (of space)
 
 -   a **random field** is a random function that generates smooth surfaces
 
--   This is hard
+-   this is hard
 
--   We typically make our lives easier by making everything Gaussian
+-   we typically make our lives easier by making everything Gaussian
 :::
 
 :::
@@ -171,27 +171,27 @@ where $\Sigma_{ij} = \mathrm{Cov}(z(\mathbf{s}_i),z(\mathbf{s}_j))$ is a dense $
 -   $C_z(\mathbf{s}_i, \mathbf{s}_j) = \mathrm{Var}(Z(\mathbf{s}_i))$ for $i = j$.
 :::
 
-## Stationary and isotropy 
+<!-- ## Stationary and isotropy  -->
 
-::: {style="font-size: 0.85em;"}
+<!-- ::: {style="font-size: 0.85em;"} -->
 
-We will assume our *Gaussian process* can be described as weakly stationary if the following criteria are met:
+<!-- We will assume our *Gaussian process* can be described as weakly stationary if the following criteria are met: -->
 
-$E[{Z(\mathbf{s})}] = \mu_z(\mathbf{s}) = \mu_z$ - a finite constant which does not depend on $\mathbf{s}$.
+<!-- $E[{Z(\mathbf{s})}] = \mu_z(\mathbf{s}) = \mu_z$ - a finite constant which does not depend on $\mathbf{s}$. -->
 
-$\text{Cov}(Z(\mathbf{s}_i),Z(\mathbf{s}_j)) = C_z(\mathbf{s}_i-\mathbf{s}_j)$ - a finite constant which can depend on distance $(\mathbf{s}_i-\mathbf{s}_j)$.
+<!-- $\text{Cov}(Z(\mathbf{s}_i),Z(\mathbf{s}_j)) = C_z(\mathbf{s}_i-\mathbf{s}_j)$ - a finite constant which can depend on distance $(\mathbf{s}_i-\mathbf{s}_j)$. -->
 
-:::{.incremental}
--   Condition 1 states that our mean function must be constant in space, with no overall spatial trend.
+<!-- :::{.incremental} -->
+<!-- -   Condition 1 states that our mean function must be constant in space, with no overall spatial trend. -->
 
--   Condition 2 states that for any two locations, their covariance depends only on how far apart they are (their spatial lag, $h$), not their absolute position.
-:::
+<!-- -   Condition 2 states that for any two locations, their covariance depends only on how far apart they are (their spatial lag, $h$), not their absolute position. -->
+<!-- ::: -->
 
-:::{.fragment}
-Our process is said to be **isotropic** if the covariance function is directionally invariant. This means that the covariance only depends on the euclidean distance $(||\mathbf{s}_i-\mathbf{s}_j||)$ and not the direction.
-:::
+<!-- :::{.fragment} -->
+<!-- Our process is said to be **isotropic** if the covariance function is directionally invariant. This means that the covariance only depends on the euclidean distance $(||\mathbf{s}_i-\mathbf{s}_j||)$ and not the direction. -->
+<!-- ::: -->
 
-:::
+<!-- ::: -->
 
 ## Building the model 
 
@@ -212,11 +212,11 @@ $$
 :::{.incremental}
 -   $\tau_e^{-1} = \sigma^2_e$ represents the variance of the zero-mean measurement error
 
--   The response mean $\mu_i$ which coincides with the linear predictor $\eta_i$ is defined based on:
+-   The response mean $\mu_i$, which coincides with the linear predictor $\eta_i$, is defined based on:
 
     -   the intercept $\beta_0$ and any additional covariates
 
-    -   the realization of the latent (*unobservable*) GF $Z(\mathbf{s}) \sim \mathrm{MVN}(0,\Sigma)$ which accounts for the spatial correlation through $\Sigma = C_z(\cdot,\cdot)$.
+    -   the realization of the latent (*unobservable*) GF $Z(\mathbf{s}) \sim \mathrm{MVN}(0,\Sigma)$, which accounts for the spatial correlation through $\Sigma = C_z(\cdot,\cdot)$.
     
 :::
 
@@ -276,7 +276,11 @@ a different approach to GRF models:
 
 # The SPDE approach {background-image="figures/INLADiagram.png"}
 
-## The  stochastic partial differential equation
+## The  SPDE approach in a nutshell 
+
+![](figures/spde.png){fig-align="center" width="520"}
+
+## The stochastic partial differential equation
 
 We define a (Matérn) GRF as the solution of a stochastic partial differential equation (SPDE)
 
@@ -293,7 +297,7 @@ What is this?
 :::{.fragment}
 -   $W(t)$ is random noise
 -   $\omega(t)$ is the smooth process we want
--   $(\kappa^2-\Delta)^{\alpha/2}$ is an operator that "smooths" the white noise.
+-   $(\kappa^2-\Delta)^{\alpha/2}$ is an operator that "smoothes" the white noise.
 -   $\kappa$ and $\alpha$ are parameters
 :::
 
@@ -350,7 +354,7 @@ Sharp up/down jumps
 
 No gentle waves
 
-No continuity in behavior
+No continuity in behaviour
 
 That's because nothing connects one tap to the next.
 :::
@@ -361,7 +365,7 @@ That's because nothing connects one tap to the next.
 :::: {.column width="40%"}
 Imagine a guitar string stretched from left to right.
 
--   The rope has tension and stiffness
+-   The string has tension and stiffness
     -   the tension spreads each tap to nearby points
     -   Sharp jumps are softened. $(\kappa^2-\Delta)^{\color{red}{\alpha}/2}Z(t) = W(t)$
 
@@ -454,7 +458,7 @@ p1 + labs(x="t")
 ::::::
 
 ::: notes
-Measure the bending at $z_i$ by taking the with respect the average of the neighbours (i.e. $z_i - (z_{i-1}+z_i/2) = z_{i-1} + 2z_i +z_{i+1}$).
+Measure the bending at $z_i$ by taking the with respect the average of the neighbours (i.e.\ $z_i - (z_{i-1}+z_i/2) = z_{i-1} + 2z_i +z_{i+1}$).
 
 -   if $= 0 \rightarrow$ straight
 
@@ -464,9 +468,9 @@ Measure the bending at $z_i$ by taking the with respect the average of the neigh
 
 The curvature need to divide by the spacing $h$ between points (assuming equal spacing), i.e., $(z_{i-1} + 2z_i +z_{i+1}) \times h^{-2}$.
 
-In a continuous space we measured this by taking the second derivative, i.e. the Laplacian operator
+In a continuous space we measured this by taking the second derivative, i.e.\ the Laplacian operator
 
-As $h\to 0$ we measure the rate of change of slope, i.e. curvature as:
+As $h\to 0$ we measure the rate of change of slope, i.e.\ curvature as:
 
 $$(z_{i-1} + 2z_i +z_{i+1}) \times h^{-2}  \to \frac{\partial z}{\partial t^2} = \Delta z$$ Where $z(x)$ is the displacement of the string at position $t$.
 
@@ -601,7 +605,7 @@ Ok...but we still need to solve the SPDE to find $Z(t)$!
 
 . . .
 
-Now we need to discretize the domain into T points (we cannot compute on the continuous!)
+Now we need to discretize the domain into T points (we cannot represent continuous space in the computer!)
 
 . . .
 
@@ -610,10 +614,10 @@ Now we need to discretize the domain into T points (we cannot compute on the con
 We represent our solution as
 
 $$
-Z(t) = \sum_{i = 1}^T\psi_i(t)w_i
+Z(t) = \sum_{i = 1}^T\psi_i(t)w_i,
 $$
 
-Where
+where
 
 -   $\psi_i(t)$ are (known) basis functions for nodes $i=1,\ldots,T$
 
@@ -625,7 +629,7 @@ Where
 
     <!-- -->
 
-    -   Linear between neighboring nodes
+    -   Linear between neighbouring nodes
 :::
 
 ::: {.column width="50%"}
@@ -653,8 +657,8 @@ w = round(runif(7), 3)
 :::::
 
 ::: notes
--   "solving the SPDE" means Find a random function $Z(t)$ such that the equality $(\kappa^2-\Delta)^{\alpha/2}Z(t) = W(t)$ holds in distribution.
--   in other words find $Z(s)$ such that when the operator $(\kappa^2-\Delta)^{\alpha/2}$ is applied to it, it produces white noise
+-   "solving the SPDE" means finding a random function $Z(t)$ such that the equality $(\kappa^2-\Delta)^{\alpha/2}Z(t) = W(t)$ holds in distribution.
+-   in other words, finding $Z(s)$ such that when the operator $(\kappa^2-\Delta)^{\alpha/2}$ is applied to it, it produces white noise
 -   OR, The Matérn field is the Gaussian field $Z(s)$ produced by smoothing white noise $W(t)$ through the inverse operator $(\kappa^2-\Delta)^{\alpha/2}$.
 -   The Matérn field is infinite-dimensional so we approximate it using a finite basis expansion
     -   we want a simple local basis
@@ -674,7 +678,7 @@ w = round(runif(7), 3)
 
 Ok...but we still need to solve the SPDE to find $Z(t)$!
 
-Now we need to discretize the domain into T points (we cannot compute on the continuous!)
+Now we need to discretize the domain into T points (we cannot represent continuous space in the computer!)
 
 ::::: columns
 ::: {.column width="50%"}
@@ -718,12 +722,12 @@ w = round(runif(7), 3)
 :::::
 
 ::: notes
--   "solving the SPDE" means Find a random function $Z(t)$ such that the equality $(\kappa^2-\Delta)^{\alpha/2}Z(t) = W(t)$ holds in distribution.
--   in other words find $Z(s)$ such that when the operator $(\kappa^2-\Delta)^{\alpha/2}$ is applied to it, it produces white noise
+-   "solving the SPDE" means finding a random function $Z(t)$ such that the equality $(\kappa^2-\Delta)^{\alpha/2}Z(t) = W(t)$ holds in distribution.
+-   in other words, finding $Z(s)$ such that when the operator $(\kappa^2-\Delta)^{\alpha/2}$ is applied to it, it produces white noise
 -   OR, The Matérn field is the Gaussian field $Z(s)$ produced by smoothing white noise $W(t)$ through the inverse operator $(\kappa^2-\Delta)^{\alpha/2}$.
 -   The Matérn field is infinite-dimensional so we approximate it using a finite basis expansion
     -   we want a simple local basis
-    -   each basis only affects neighbors
+    -   each basis only affects neighbours
     -   so computations become sparse
 -   Each weight $w_i$ is basically the value of the field at node $i$
 -   The basis functions are:
@@ -739,7 +743,7 @@ w = round(runif(7), 3)
 
 Ok...but we still need to solve the SPDE to find $Z(t)$!
 
-Now we need to discretize the domain into T points (we cannot compute on the continuous!)
+Now we need to discretize the domain into T points (we cannot represent continuous space in the computer!)
 
 ::::: columns
 ::: {.column width="50%"}
@@ -860,13 +864,13 @@ Penalized Complexity (PC) priors proposed by Simpson et al. ([2017](https://proj
 ::: {style="height: 50px;"}
 :::
 
--   D. Miller, R.  Glennie, R. and A. Seaton. (2020). Understanding the Stochastic Partial Differential Equation Approach to Smoothing. *Journal of Agricultural, Biological and Environmental Statistics*, 25(1), 1-16.
+-   D.\ Miller, R.\  Glennie and A.\ Seaton. (2020). Understanding the Stochastic Partial Differential Equation Approach to Smoothing. *Journal of Agricultural, Biological and Environmental Statistics*, 25(1), 1-16.
 
--   F. Lindgren, H. Rue, and J. Lindström. An explicit link between Gaussian fields and Gaussian Markov random fields: The SPDE approach (with discussion). In: *Journal of the Royal Statistical Society, Series B* 73.4 (2011), pp. 423–498.
+-   F.\ Lindgren, H.\ Rue, and J.\ Lindström. An explicit link between Gaussian fields and Gaussian Markov random fields: The SPDE approach (with discussion). In: *Journal of the Royal Statistical Society, Series B* 73.4 (2011), pp. 423–498.
 
--   H. Bakka, H. Rue, G. A. Fuglstad, A. Riebler, D. Bolin, J. Illian, E. Krainski, D. Simpson, and F. Lindgren. Spatial modelling with R-INLA: A review. In: *WIREs Computational Statistics* 10:e1443.6 (2018). (Invited extended review). DOI: 10.1002/wics.1443.
+-   H.\ Bakka, H.\ Rue, G.\ A.\ Fuglstad, A.\ Riebler, D.\ Bolin, J.\ Illian, E.\ Krainski, D.\ Simpson, and F.\ Lindgren. Spatial modelling with R-INLA: A review. In: *WIREs Computational Statistics* 10:e1443.6 (2018). (Invited extended review). DOI: 10.1002/wics.1443.
 
--   E. T. Krainski, V. Gómez-Rubio, H. Bakka, A. Lenzi, D. Castro-Camilio, D. Simpson, F. Lindgren, and H. Rue. *Advanced Spatial Modeling with Stochastic Partial Differential Equations using R and INLA*. Github version \url{www.r-inla.org/spde-book}. CRC press, Dec. 20
+-   E.T.\ Krainski, V.\ Gómez-Rubio, H.\ Bakka, A.\ Lenzi, D.\ Castro-Camilio, D.\ Simpson, F\. Lindgren, and H. Rue. *Advanced Spatial Modeling with Stochastic Partial Differential Equations using R and INLA*. Github version \url{www.r-inla.org/spde-book}. CRC press, Dec. 20
 
 
 # Modelling Pacific Cod Distribution {background-image="figures/cod.jpg"}
@@ -1329,7 +1333,7 @@ $$ where $\Theta$ denotes *all* latent components and hyperparameters.
 
 ::: incremental
 -   $\pi(\tilde{Y} \mid \Theta, y)$ depends on the task:
-    -   extrapolation(e.g. forecasting): $\pi(Y_{n+1} \mid \Theta, y_n)$,
+    -   extrapolation (e.g.\ forecasting): $\pi(Y_{n+1} \mid \Theta, y_n)$,
     -   **interporlation**: $\pi(Y_i \mid y_{i-1}, y_{i+1}, \Theta)$,
 -   Spatial prediction fits naturally into this framework:
     -   $\tilde{Y}$ may represent $Z(s_0)$, $\eta_0$, or the response at $y(s_0)$,

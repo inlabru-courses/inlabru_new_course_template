@@ -74,7 +74,7 @@ library(fmesher)
 
 **The short answer:**
 
-> INLA is a fast method to do Bayesian inference with latent Gaussian models and `inlabru` is an `R`-package that implements this method with a flexible and simple interface.
+> INLA is a fast method to do Bayesian inference with latent Gaussian models and `inlabru` is an `R`-package that implements this method with a flexible and simple interface and some additional functionality.
 
 :::{.fragment}
 
@@ -255,7 +255,7 @@ p3 + geom_smooth(aes(tl, w), method = "lm", fill = "red")
 
 ## Some more details I {.smaller auto-animate="\"true"}
 
-We define as the `linear predictor` the mean (or a function of the mean) of our observations `given` the model components.
+We define the `linear predictor` as the mean (or a function of the mean) of our observations `given` the model components.
 
 ```{r}
 # | fig-width: 10
@@ -355,7 +355,7 @@ In this case $E(y_i|\beta_0, \beta_i) = \eta_i = \beta_0 + \beta_1 x_i$
 
 ## Some more details I {.smaller auto-animate="\"true"}
 
-We define as the **linear predictor** the mean (or a function of the mean) of our observations **given** the model components.
+We define the **linear predictor** as the mean (or a function of the mean) of our observations **given** the model components.
 
 ```{r}
 # | fig-width: 10
@@ -1041,18 +1041,18 @@ Data can have several dependence structures: temporal, spatial,...
 
 **Using a Bayesian framework** we will:
 
--   build (hierarchical) models to account for potentially complicated dependency structures in the data.
+-   build (hierarchical) models to account for potentially complicated dependency structures in the data
 
--   attribute uncertainty to model parameters and latent variables using priors.
+-   attribute uncertainty to model parameters and latent variables using priors
 
 **Two main challenges**:
 
 -   We need computationally efficient methods to calculate posteriors (this is where INLA helps!).
--   We select priors in a sensible way (we'll talk about these later)
+-   We select priors in a sensible way (we'll talk about these later).
 
 ## The good news!! {.smaller auto-animate="true"}
 
-In many cases complicated spatio-temporal models are *just* special cases of the same model structure!! :smiley:
+In many cases, complicated spatio-temporal models are *just* special cases of the same model structure!! :smiley:
 
 -   **Stage 1**: What is the distribution of the responses?
 
@@ -1062,7 +1062,7 @@ In many cases complicated spatio-temporal models are *just* special cases of the
 
 ## The good news!! {.smaller auto-animate="true"}
 
-In many cases complicated spatio-temporal models are *just* special cases of the same model structure!! :smiley:
+In many cases, complicated spatio-temporal models are *just* special cases of the same model structure!! :smiley:
 
 -   **Stage 1**: What is the distribution of the responses?
 
@@ -1079,7 +1079,7 @@ In many cases complicated spatio-temporal models are *just* special cases of the
 
 ## The good news!! {.smaller auto-animate="true"}
 
-In many cases complicated spatio-temporal models are *just* special cases of the same model structure!! :smiley:
+In many cases, complicated spatio-temporal models are *just* special cases of the same model structure!! :smiley:
 
 -   **Stage 1**: What is the distribution of the responses?
 
@@ -1092,7 +1092,7 @@ In many cases complicated spatio-temporal models are *just* special cases of the
 
 ## The good news!! {.smaller auto-animate="true"}
 
-In many cases complicated spatio-temporal models are *just* special cases of the same model structure!! :smiley:
+In many cases, complicated spatio-temporal models are *just* special cases of the same model structure!! :smiley:
 
 -   **Stage 1**: What is the distribution of the responses?
 
@@ -1111,7 +1111,7 @@ These are linked to the responses in the likelihood through *linear predictors*.
 
 ## The good news!! {.smaller auto-animate="true"}
 
-In many cases complicated spatio-temporal models are *just* special cases of the same model structure!! :smiley:
+In many cases, complicated spatio-temporal models are *just* special cases of the same model structure!! :smiley:
 
 -   **Stage 1**: What is the distribution of the responses?
 
@@ -1194,7 +1194,7 @@ fit <- bru(comps, lik, ...)
 
 ## The Tokyo rainfall data
 
-One example with time series: Rainfall over 1 mm in the Tokyo area for each calendar day during two years (1983-84)
+One example with time series: Rainfall over 1 mm in the Tokyo area for each calendar day during two years (1983-84); binary response
 
 ```{r}
 #| echo: false
@@ -1270,7 +1270,7 @@ $$
 
 -   $\beta_0$ is an intercept
 
--   $f(\text{time}_t)$ is a RW2 model (this is just a smoother). The smoothness is controlled by a hyperparameter $\tau_f$
+-   $f(\text{time}_t)$ is a RW2 model (this is just a smoother; a smooth function of time). The smoothness is controlled by a hyperparameter $\tau_f$
 
 ## The model {auto-animate="true"}
 
@@ -1484,7 +1484,7 @@ fit = bru(cmp, lik)
 
 ## Example: disease mapping
 
-We observed larynx cancer mortality counts for males in 544 districts of Germany from 1986 to 1990 and want to model these in space.
+We have larynx cancer mortality counts for males in 544 districts of Germany from 1986 to 1990 and want to model these in space.
 
 ::::: columns
 ::: {.column width="50%"}
@@ -2071,6 +2071,7 @@ p1 + p2
 <br>
 <br>
 
--   Many of the models you have used (and some you have never used but will learn about) are *just* special cases of the large class of Latent Gaussian models
+-   Many of the models you have used (plus some you have never used but will learn about) are *just* special cases of the large class of Latent Gaussian models.
 
 -   `inlabru` provides an efficient and unified way to fit all these models!
+  

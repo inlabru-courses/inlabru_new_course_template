@@ -76,7 +76,7 @@ library(inlabru)
 
 -   As with other types of spatial modelling, our goal is to observe and explain **spatial variation** in our data.
 
--   Again, we are trying to understand and account for **spatial dependence**.
+-   We are trying to understand and account for **spatial dependence**.
 
 -   Generally, we aim to produce a smoothed map that summarises the spatial patterns observed in our data.
 :::
@@ -97,9 +97,9 @@ An **areal process** (or lattice process) is a stochastic process defined on a s
 ## Neighbourhood structures
 
 ::: incremental
--   Each of our regions $B_i$ has a set of other nearby which can be considered **neighbours**
+-   Each of our regions $B_i$ has a set of other regions nearby which can be considered **neighbours**
 
--   We might expect that areas have more in common with their neighbours.
+-   We might expect that areas have more in common with their neighbours than with regions further away.
 
 -   Therefore, we can construct dependence structures based on the principle that neighbours are correlated and non-neighbours are uncorrelated.
 
@@ -160,7 +160,7 @@ Assume that regions which are a within a certain distance of each other area nei
 
 ## Binary Neighbourhood matrix
 
-By far the most common approach is to use a binary neighbourhood matrix, $W$, denoted by
+The by far most common approach is to use a binary neighbourhood matrix, $W$, denoted by
 
 $$
 \begin{aligned}
@@ -171,9 +171,9 @@ $$
 
 ::::: columns
 ::: {.column width="40%"}
--   Dependencies structures are described through this spatial weights matrix
+-   Dependence structures are described through this spatial weights matrix
 
--   Binary matrices are used for their simplicity
+-   Binary matrices are used for simplicity
 :::
 
 ::: {.column width="60%"}
@@ -183,7 +183,7 @@ $$
 
 ## How do we model this? {auto-animate="true"}
 
-Imagine we have animal counts in each region. We can model them as Poisson
+Imagine we have animal counts in each region. We can model them as Poisson counts
 
 $$
 y_i \sim \mathrm{Poisson}(e^{\eta_i})
@@ -201,21 +201,21 @@ $$
 
 ## How do we model this? { auto-animate="true"}
 
-Imagine we have animal counts in each region. We can model them as Poisson
+Imagine we have animal counts in each region. We can model them as Poisson counts
 
 $$
 y_i \sim \mathrm{Poisson}(e^{\eta_i})
 $$ How do we model the linear predictor $\eta_i$?
 
 ::: {.fragment .fade-in}
--   But... what if the distribution varies across space, i.e. is structured in space?
+-   But... what if the distribution varies across space following a trend, i.e.\ is structured in space?
 -   Do the covariates account for those structures?
--   If there’s an area where the animal is rare, we’ll get lots of zero counts
+-   If there’s an area where the animal is rare, we’ll get lots of zero counts...
 :::
 
 ## How do we model this? { auto-animate="true"}
 
-Imagine we have animal counts in each region. We can model them as Poisson
+Imagine we have animal counts in each region. We can model them as Poisson counts.
 
 $$
 y_i \sim \mathrm{Poisson}(e^{\eta_i})
@@ -274,8 +274,8 @@ $$
 
 2.  Force the *precision* matrix $\mathbf{Q} = \Sigma^{-1}$ to be sparse
 
-    -   What does $Q_{ij}$ represents?
-    -   What does a sparse precision matrix implies?
+    -   What does $Q_{ij}$ represent?
+    -   What does a sparse precision matrix imply?
     
     
 # Gaussian Markov Random Fields  {background-image="figures/areal_img.jpg"}
@@ -292,9 +292,9 @@ $$
 \end{aligned}
 $$
 
--   Very common to model dependence in time
--   The *joint* distribution of $\mathbf{x}=x_1,x_2,\dots$ is Gaussian
--   How do covariance and precision matrices look?
+-   Very common to model dependence in time.
+-   The *joint* distribution of $\mathbf{x}=x_1,x_2,\dots$ is Gaussian.
+-   What do covariance and precision matrices look like?
 
 ## Covariance and Precision Matrix for AR1 {auto-animate="true" background-color="#FFFFFF"}
 
@@ -360,7 +360,7 @@ $$
 \end{bmatrix}
 $$
 
--   This is a tridiagonal matrix, it is *sparse*
+-   This is a tridiagonal matrix, it is *sparse*.
 
 -   The tridiagonal form of $\mathbf{Q}$ can be exploited for quick calculations.
 
@@ -387,7 +387,7 @@ $$
 
 -   There is a line between them if they are conditionally dependent
 
--   Each timepoint is only **conditionally dependent** on the two closest neighbours
+-   Each point in time is only **conditionally dependent** on the two closest neighbours
 
 -   The nonzero pattern in the precision matrix is given by the neighborhood structure of the process
 :::
@@ -450,32 +450,32 @@ GMRFs are key to the many inferential approaches:
 -   other data structures can be approximated by a GMRF in a clever way
 :::
 
-## Formal definition of a GMRF 
+<!-- ## Formal definition of a GMRF  -->
 
-::::: {style="font-size: 0.85em;"}
-Let $\mathbf{u}$ be a GMRF wrt $\mathcal{G} = (\mathcal{V},\mathcal{E})$).
+<!-- ::::: {style="font-size: 0.85em;"} -->
+<!-- Let $\mathbf{u}$ be a GMRF wrt $\mathcal{G} = (\mathcal{V},\mathcal{E})$). -->
 
-$\mathcal{V}$ Vertices: $1,2,\ldots,n$. $\mathcal{E}$ Edges $\{i,j\}$
+<!-- $\mathcal{V}$ Vertices: $1,2,\ldots,n$. $\mathcal{E}$ Edges $\{i,j\}$ -->
 
--   No edge between $i$ and $j$ if $u_i \perp u_j \mid \mathbf{u}_{ij}.$
+<!-- -   No edge between $i$ and $j$ if $u_i \perp u_j \mid \mathbf{u}_{ij}.$ -->
 
--   An edge between $i$ and $j$ if $u_i \not\perp u_j \mid \mathbf{u}_{ij}.$
+<!-- -   An edge between $i$ and $j$ if $u_i \not\perp u_j \mid \mathbf{u}_{ij}.$ -->
 
-*Key point: A graph defines the sparsity structure of Q*
+<!-- *Key point: A graph defines the sparsity structure of Q* -->
 
-::::: 
+<!-- :::::  -->
 
-::: {.callout-note icon="false"}
-## Definition
+<!-- ::: {.callout-note icon="false"} -->
+<!-- ## Definition -->
 
-A random variable $\mathbf{u}$ is said to be a GMRF wrt to the graph $\mathcal{G}$ with vertices $\{1, 2,\dots , n\}$ and edges $\mathcal{E}$ , with mean $\mu$ and precision matrix $\mathbf{Q}$ if its probability distribution is given by
+<!-- A random variable $\mathbf{u}$ is said to be a GMRF wrt.\ to the graph $\mathcal{G}$ with vertices $\{1, 2,\dots , n\}$ and edges $\mathcal{E}$, with mean $\mu$ and precision matrix $\mathbf{Q}$ if its probability distribution is given by -->
 
-$$
-\mathbf{u} \sim N(\mu,Q^{-1})
-$$ and
+<!-- $$ -->
+<!-- \mathbf{u} \sim N(\mu,Q^{-1}) -->
+<!-- $$ and -->
 
-$Q_{ij} \neq 0\Longleftrightarrow \{i,j\}\in\mathcal{E} ~~\forall~~i\neq j$
-:::
+<!-- $Q_{ij} \neq 0\Longleftrightarrow \{i,j\}\in\mathcal{E} ~~\forall~~i\neq j$ -->
+<!-- ::: -->
 
 
 ## Modelling spatial similarity {.smaller}
@@ -483,7 +483,7 @@ $Q_{ij} \neq 0\Longleftrightarrow \{i,j\}\in\mathcal{E} ~~\forall~~i\neq j$
 ::: {style="height: 50px;"}
 :::
 
-An example of a GMRF is the the Besag model a.k.a. Intrinsic Conditional Autoregressive (ICAR) model. The conditional distribution for $u_i$ is
+An example of a GMRF is the Besag model a.k.a.\ the Intrinsic Conditional Autoregressive (ICAR) model. The conditional distribution for $u_i$ is
 
 $$
 u_i|\mathbf{u}_{-i},\tau_u, \sim N\left(\frac{1}{d_i}\sum_{j\sim i}u_j,\frac{1}{d_i\tau_u}\right)
@@ -496,7 +496,7 @@ $$
 
 -   $d_i$ is the number of neighbours
 
--   The mean of $u_i$ is equivalent to the the mean of the effects over all neighbours, and the precision is proportional to the number of neighbours (e.g., if an area has many neighbors then its variance will be smaller)
+-   The mean of $u_i$ is equivalent to the mean of the effects over all neighbours, and the precision is proportional to the number of neighbours (e.g., if an area has many neighbours then its variance will be smaller)
 :::
 
 ## Modelling spatial similarity {.smaller}
@@ -510,7 +510,7 @@ $$
 \mathbf{u}|\tau_u \sim N\left(0,\frac{1}{\tau_u}Q^{-1}\right),
 $$
 
-Where $Q$ denotes the precision matrix defined as
+where $Q$ denotes the precision matrix defined as
 
 $$
 Q_{i,j} = \begin{cases}
@@ -524,25 +524,25 @@ This structure matrix directly defines the neighbourhood structure and is sparse
 
 
 
-## How does it looks? {auto-animate="true"}
+## What does it look like? {auto-animate="true"}
 
 Larynx cancer relative risk map
 
 ![](figures/mp1.png){fig-align="center" width="423"}
 
-## How does it looks? {auto-animate="true"}
+## What does it look like? {auto-animate="true"}
 
-Connecting all the neighbouring areas give the following graph
+Connecting all the neighbouring areas yields the following graph
 
 ![](figures/mp2.png){fig-align="center"}
 
-## How does it looks? {auto-animate="true"}
+## What does it look like? {auto-animate="true"}
 
 -   Let us focus on one small part of the graph
 
 ![](figures/mp3.png){fig-align="center"}
 
-## How does it looks? {.smaller auto-animate="true"}
+## What does it look like? {.smaller auto-animate="true"}
 
 -   We apply an ICAR model where each region conditionally has a Gaussian distribution with mean equal to the average of the neighbours and a precision proportional to the number of neighbour
 
@@ -552,13 +552,13 @@ Connecting all the neighbouring areas give the following graph
 
 ![](figures/mp4.png){fig-align="center"}
 
-## How does it looks? {auto-animate="true"}
+## What does it look like? {auto-animate="true"}
 
 The sub graph leads to a precision matrix with 21.6% non-zero elements.
 
 ![](figures/prec_1.png){fig-align="center"}
 
-## How does it looks like? {auto-animate="true"}
+## What does it look like? {auto-animate="true"}
 
 The full graph leads to a precision matrix with 0.1% non-zero elements.
 
@@ -573,17 +573,17 @@ The full graph leads to a precision matrix with 0.1% non-zero elements.
 The ICAR model accounts only for spatially structured variability and does not include a limiting case where no spatial structure is present.
 
 ::: incremental
--   We typically add an unstructured random effect $z_i|\tau_z \sim N(0,\tau_{z}^{-1})$
+-   We typically add an unstructured random effect $z_i|\tau_z \sim N(0,\tau_{z}^{-1})$ to account for region-specific differences.
 
 -   The resulting model $v_i = u_i + z_i$ is known as the Besag-York-Mollié model (BYM)
 
--   The structured spatial effect is controlled by $\tau_u$ which control the degree of smoothing:
+-   The structured spatial effect is controlled by $\tau_u$ which controls the degree of smoothing:
 
     -   Higher $\tau_u$ values lead to stronger smoothing (less spatial variability).
 
     -   Lower $\tau_u$ values allow for greater local variation.
 
--   In the next example we will illustrate how to fit this model using `inlabru`.
+-   In the following example we will illustrate how to fit this model using `inlabru`.
 :::
 
 :::
@@ -1021,7 +1021,9 @@ pred = predict(fit, resp_cases,
 
 In the original BYM, the spatially structured component must be scaled so that $\tau_u$ produces consistent smoothness across different neighborhood structures.
 
-Simpson *et al*. ([2017](https://projecteuclid.org/journals/statistical-science/volume-32/issue-1/Penalising-Model-Component-Complexity--A-Principled-Practical-Approach-to/10.1214/16-STS576.full)) proposed a new parametrization of the BYM model that improves parameter interpretability.
+Riebler *et al*. ([2016](https://journals.sagepub.com/doi/10.1177/0962280216660421)) proposed a new parametrization of the BYM model based on PC-priors that improves parameter interpretability.
+
+<!-- Simpson *et al*. ([2017](https://projecteuclid.org/journals/statistical-science/volume-32/issue-1/Penalising-Model-Component-Complexity--A-Principled-Practical-Approach-to/10.1214/16-STS576.full)) proposed a new parametrization of the BYM model that improves parameter interpretability. -->
 
 $$
     \mathbf{b} = \dfrac{1}{\sqrt{\tau_b}} \left(\sqrt{1-\phi}v^*+\sqrt{\phi}u^*\right).
@@ -1043,18 +1045,18 @@ $$
 :::
 
 :::{.notes}
-The problem is that the data only ever inform the sum $u_i + v_i$ never the two pieces separately. 
+The problem is that the data only ever inform the sum $u_i + v_i$, never the two pieces separately. 
 
 - For a single area you have one observation (or one likelihood contribution) but two latent variables to split it into.
 
 - Any observed $\eta_i = u_i + v_i$ can be explained by infinitely many combinations of $u_i$ and $v_i$ that add to the same value
 
-- The two components are not individually identifiable from the likelihood — only their sum is.
+- The two components are not individually identifiable from the likelihood —- only their sum is.
 :::
 
 ## BYM2 & PC priors {.smaller auto-animate=true}
 
-The BYM2 model allows the specification of Penalized Complexity (PC) priors to control the amount of spatial smoothing and avoid overfitting.
+The BYM2 model allows the specification of Penalized Complexity (PC) priors to control the amount of spatial smoothing and to avoid overfitting.
 
 -   PC priors shrink the model towards a simpler baseline unless the data provide strong evidence for a more complex structure.
 -   To define the prior for the marginal precision $\tau_b$ and the mixing parameter $\phi$, we use the probability statements:
@@ -1110,7 +1112,7 @@ cmp = ~ Intercept(1) +  pm10(pm10, model = "linear") +
 
 -   Prior on $\tau_b$: low probability of large values
 
--   Prior on $\phi$ assumes that the unstructured random effect accounts for more of the variability than the spatially structured effect.
+-   Prior on $\phi$: assumes that the unstructured random effect accounts for more of the variability than the spatially structured effect.
 
 
 
@@ -1118,7 +1120,8 @@ cmp = ~ Intercept(1) +  pm10(pm10, model = "linear") +
 
 - areal data are data on discretised space
 - spatial relationships are represented through a neighbourhood structure
-- GMRFs are computationally efficient representation these will also be relevant – and very useful – when it comes to approximating spatial structures in continuous space
+- GMRFs are a computationally efficient representation of spatial structures
+- these will also be relevant – and very useful – when it comes to approximating spatial structures in continuous space
 
 
 # References {.smaller data-title-offset="true"}
