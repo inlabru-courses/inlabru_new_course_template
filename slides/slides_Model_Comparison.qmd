@@ -85,7 +85,7 @@ But..it is not always easy to distinguish between the two!
 
 # Bayesian model comparison
 
-## Bayesian Model Comparison
+## Bayesian Model Validation
 
 -   There is *no golden standard*
 -   It really depends what you want to do!
@@ -197,7 +197,7 @@ fit$waic$waic
 
 ## Posterior predictive distribution
 
-**Remember:** Our GLM is defined as: $$
+**Remember:** Our LGM is defined as: $$
 \begin{eqnarray}
 \pi(\mathbf{y}|\mathbf{u},\theta) & =\prod_i \pi(y_i|\mathbf{u},\theta)& \ \text{  likelihood}\\
 \pi(\mathbf{u}|\theta)& &\ \text{  LGM}\\
@@ -205,11 +205,13 @@ fit$waic$waic
 \end{eqnarray}
 $$ using `inlabru` we estimate the *posterior distribution* $\pi(\mathbf{u},\theta|\mathbf{y})$.
 
-The *posterior predictive distribution* for a new data $\hat{y}$ is then: $$
+The *posterior predictive distribution* for a new data $\hat{y}$ is then: 
+
+$$
 \pi(\hat{y}|\mathbf{y}) = \int\pi(y_i|\mathbf{u},\theta)\pi(\mathbf{u},\theta|\mathbf{y})\ d\mathbf{u}\ d\theta
 $$
 
-This ditribution can be used to check the model fit!
+This distribution can be used to check the model fit!
 
 ## Posterior predictive distribution {.smaller}
 
@@ -234,15 +236,21 @@ $$
 
 ## Conditional predictive ordinate (CPO)
 
-Definition: $$
+Definition: 
+
+$$
 cpo_i = \pi(y^{obs}_i|\mathbf{y}_{-i})
 $$
 
 -   Introduced in Pettit (1990)[^2]
 -   Measures fit through the predictive density
--   Can be used to compute the log-score as $$
+-   Can be used to compute the log-score as 
+
+$$
     \text{Score} = -\sum \log(cpo_i)
-    $$ lower score correspond to better models
+$$
+
+lower score correspond to better models
 
 [^2]: Pettit, L. I. 1990. “The Conditional Predictive Ordinate for the Normal Distribution.” Journal of the Royal Statistical Society. Series B (Methodological)
 
@@ -273,13 +281,15 @@ head(fit$cpo$failure)
 
 ## Probability integral transform (PIT)
 
-Definition: $$
+Definition: 
+
+$$
 pit_i = \text{Prob}(\hat{y}_i<y_i|\mathbf{y}_{-i})
 $$
 
 -   Linked to leave-one-out cross-validation
 
--   $pit_i$ shows how well the ith data point is predicted by the rest of the data
+-   $pit_i$ shows how well the i$th$ data point is predicted by the rest of the data
 
 -   Very small values indicate "suprising" observation under the model
 
@@ -338,7 +348,9 @@ They all have their strength and wakness and which one is better depends on the 
 
 ## Example: CRPS for Poisson data
 
-Our model: $$
+Our model: 
+
+$$
 \begin{eqnarray}
 y_i|\lambda_i & \sim \text{Poisson}(\lambda_i),&\ i = 1,\dots,N_{\text{data}}\\
 \log(\lambda_i)  = \eta_i &= \beta_0 + \beta_1 x_i
@@ -365,13 +377,15 @@ fit_pois <- bru(cmp, lik)
 
 ## Example: CRPS for Poisson data {.smaller}
 
-The CRPS score is defined as: $$
+The CRPS score is defined as:
+
+$$
 \text{S}_{\text{CRPS}}(F_i, y_i) = \sum_{k=0}^\infty\left[\text{Prob}(Y_i\leq k|\mathbf{y})-I(y_i\leq k)\right]^2
 $$
 
 Computational algorithm:
 
-1.  Simulate $\lambda^{(j)}\sim p(\lambda|\text{data}), j = 1,\dots, N_{\text{samples}}$ using `generate()` (size $N\times N_\text{samples}$).
+1.  Simulate $\lambda^{(j)}\sim p(\lambda|\text{data}), j = 1,\dots, N_{\text{samples}}$ using `generate()` (size $N_{\text{data}}\times N_\text{samples}$).
 
 2.  For each $i=1,\dots,N_{\text{data}}$, estimate $r_{ik}=\text{Prob}(Y\leq k|\text{data})-I(y_i\leq k)$ as $$
       \hat{r}_{ik} = \frac{1}{N_\text{samples}} \sum_{j=1}^{N_\text{samples}}

@@ -1,0 +1,645 @@
+---
+title: "Recap from yesterday"
+from: markdown+emoji
+format:
+  revealjs:
+    code-line-numbers: true
+    logo:  NTNU_UofG.png
+    theme: uofg_theme.scss
+    footer: "<a href='../index.html'>Back to Home</a>"
+    header-includes: |
+      <script src="custom.js" type="application/javascript"></script>
+slide-number: "c/t"
+title-slide-attributes:
+#    data-background-image: images/trondheim3.png
+    data-background-size: cover
+    data-background-opacity: "0.55"
+author:
+  - name: Sara Martino
+    #orcid: 0000-0002-6879-4412
+    email: sara.martino@ntnu.no
+    affiliations: Dept. of Mathematical Science, NTNU
+  - name: Janine Illian
+    #orcid: 0000-0002-6879-4412
+    email: Janine.Illian@glasgow.ac.uk
+    affiliations: University of Glasgow 
+  - name: Jafet Belmont
+    #orcid: 0000-0002-6879-4412
+    email: Jafet.Belmont@glasgow.ac.uk
+    affiliations: University of Glasgow   
+        
+# date: May 22, 2025
+# bibliography: references.bib
+embed-resources: true
+execute:
+  allow-html: true
+  freeze: auto
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r setup}
+# #| include: false
+
+knitr::opts_chunk$set(echo = TRUE,
+                      message=FALSE,
+                      warning=FALSE,
+                      strip.white=TRUE,
+                      prompt=FALSE,
+                      fig.align="center",
+                       out.width = "60%")
+
+library(knitr)    # For knitting document and include_graphics function
+library(ggplot2)  # For plotting
+library(png)
+library(tidyverse)
+library(INLA)
+library(BAS)
+library(patchwork)
+library(DAAG)
+library(inlabru)
+library(fmesher)
+library(cowplot) # needs install.packages("magick") to draw images
+
+```
+
+# The `inlabru` workflow
+
+## The syntax {auto-animate=TRUE .smaller}
+
+::: {style="height: 50px;"}
+:::
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+```{r}
+#| echo: true
+#| eval: false
+#| code-line-numbers: "1,2,3"
+
+# Define model components
+comps <- component_1(...) +
+  component_2(...) + 
+  ...
+
+# Define the model predictor
+pred <- linear_function(component_1,
+                            component_2, ...)
+
+# Build the observation model
+lik <- bru_obs(formula = pred,
+               family = ... ,
+               data = ... ,
+                ...)
+
+# Fit the model
+fit <- bru(comps, lik, ...)
+```
+
+:::
+
+::: {.column width="50%"}
+
+**Components**
+
+```{r}
+#| eval: false
+~ my_component_name(
+  main = ...,
+  model = ...
+)
+```
+
+-  `my_component_name` how you label your component (.e.g, `beta_0`,`myspde`)
+-  `main` input data for the component (e.g., a the name of a column in your data or a spatial object)
+- `model` The type of model component (e.g., `linear`,`fixed`,`iid`,`rw1`,`rw2`,`ar1`, see `?INLA::inla.list.models()$latent`)
+
+
+
+:::
+
+:::: 
+
+## The syntax {auto-animate=TRUE .smaller}
+
+::: {style="height: 50px;"}
+:::
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+```{r}
+#| echo: true
+#| eval: false
+#| code-line-numbers: "5,6,7"
+#| 
+# Define model components
+comps <- component_1(...) +
+  component_2(...) + 
+  ...
+
+# Define the model predictor
+pred <- linear_function(component_1,
+                            component_2, ...)
+
+# Build the observation model
+lik <- bru_obs(formula = pred,
+               family = ... ,
+               data = ... ,
+                ...)
+
+# Fit the model
+fit <- bru(comps, lik, ...)
+```
+
+:::
+
+::: {.column width="50%"}
+
+
+**linear predictor**
+
+- can be defined within the formula:
+
+```{r}
+#| eval: false
+lik = bru_obs(formula = 
+                response ~  component_1(...) + 
+                component_2(...),
+              family,
+              data)
+```
+
+-  or use a full stop shortcode after the componets have been defined
+
+```{r}
+#| eval: false
+
+lik = bru_obs(formula = y~.,
+              family,
+              data)
+```
+
+
+:::
+
+:::: 
+
+
+## The syntax {auto-animate=TRUE .smaller}
+
+::: {style="height: 50px;"}
+:::
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+```{r}
+#| echo: true
+#| eval: false
+#| code-line-numbers: "9,10,11,12,13|16,17"
+#| 
+# Define model components
+comps <- component_1(...) +
+  component_2(...) + 
+  ...
+
+# Define the model predictor
+pred <- linear_function(component_1,
+                            component_2, ...)
+
+# Build the observation model
+lik <- bru_obs(formula = pred,
+               family = ... ,
+               data = ... ,
+                ...)
+
+# Fit the model
+fit <- bru(comps, lik, ...)
+```
+
+:::
+
+::: {.column width="50%"}
+
+
+
+**Likelihood**
+
+Specify the distribution family (see `inla.list.models("likelihood")`)
+
+```{r}
+#| eval: false
+lik = bru_obs(formula,
+              family  = "gaussian",
+              data = df)
+```
+
+
+
+
+:::
+
+:::: 
+
+
+# Temporal Dependence 
+
+
+
+## Modelling temporal dependence {.smaller}
+
+Data are often observed in time, and time dependence is often expected.
+
+```{r}
+#| fig-width: 8
+#| fig-height: 6
+#| fig-align: center
+#| echo: false
+lakes = as.data.frame(greatLakes ) %>% mutate(year = 1918:2009)
+lakes %>%
+  pivot_longer(-year) %>%
+  ggplot() + geom_point(aes(year, value ))+
+  facet_wrap(.~name,scales = "free" ) + xlab("") + ylab("")
+```
+
+. . .
+
+-   Observations are correlated in time
+
+
+
+## Motivation {auto-animate="true" .smaller}
+
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+Smoothing of the time effect
+
+
+$$
+\begin{aligned}
+y_t|\eta_t & \sim \text{N}(\mu,\tau_y^{-1})\\
+\eta_t & = \mu = \beta_0 + u_t
+\end{aligned}
+$$
+:::
+
+::: {.column width="50%"}
+
+The models we covered:
+
+$$
+\begin{aligned}
+1.\ u_t&\sim \text{RW}1(\tau)\\
+2.\ u_t&\sim \text{RW}2(\tau)\\
+3.\ u_t&\sim \text{AR}1(\tau, \phi)\\
+\end{aligned}
+$$
+
+
+:::
+
+:::: 
+
+
+
+```{r}
+#| fig-width: 10
+#| fig-height: 6
+#| fig-align: center
+#| echo: false
+greatLakes.df<- read.csv(here::here("datasets/greatLakes.csv"))
+
+greatLakes.df$t.idx <- greatLakes.df$year-1917
+
+Erie.df = greatLakes.df %>% filter(Lakes == "Erie")
+
+pc_prior <- list(theta = list(prior = "pc.prec", param = c(1, 0.01)),
+                 rho = list(prior = "pc.cor0", param = c(0.5, 0.3))) 
+
+prec.tau_e <- list(prec = list(prior = "loggamma",   # prior name
+                             param = c(1, 1))) # prior values
+
+# Model components
+cmp =  ~ -1 + alpha(1) + ut(t.idx, model = "ar1",  hyper = pc_prior)
+# Model formula
+formula = height ~ alpha + ut
+
+
+# Observational model
+lik =  bru_obs(formula = height  ~.,
+            family = "gaussian",
+            data = Erie.df,
+            control.family = list(hyper = prec.tau_e))
+
+# fit the model
+fit.Erie_ar1 = bru(cmp, lik)
+
+
+# Model predictions
+pred_ar1.Erie = predict(fit.Erie_ar1, Erie.df, ~ alpha + ut)
+
+pc_prior <- list(theta = list(prior = "pc.prec", param = c(1, 0.01))) 
+
+prec.tau_e <- list(prec = list(prior = "loggamma",   # prior name
+                             param = c(1, 1))) # prior values
+
+
+cmp_rw =  ~ -1 + alpha(1) + 
+  ut(t.idx ,
+     constr=TRUE,
+     model = "rw1",
+     hyper=pc_prior,
+     scale.model = TRUE)
+
+formula = height ~ alpha + ut
+# Observational model
+lik =  bru_obs(formula = height  ~.,
+            family = "gaussian",
+            data = Erie.df,
+            control.family = list(hyper = prec.tau_e))
+
+
+fit.Erie_rw1_constr = bru(cmp_rw, lik)
+
+
+cmp_rw2 = ~ -1 + alpha(1) + time(t.idx, model = "rw2",
+                                 scale.model = T,
+                                 hyper = list(prec = list(prior = "pc.prec", param = c(1, 0.01))))
+
+fit.Erie_rw2_constr = bru(cmp_rw2, lik)
+
+pred_rw2 = predict(fit.Erie_rw2_constr, Erie.df, ~ alpha + time)
+
+
+
+pred_rw1.Erie = predict(fit.Erie_rw1_constr, Erie.df, ~ alpha + ut)
+
+
+
+
+dplyr::bind_rows(
+      pred_rw1.Erie %>% mutate(Model = "RW1"),
+
+    pred_rw2 %>% mutate(Model = "RW2"),
+
+  pred_ar1.Erie %>% mutate(Model = "AR1")
+) %>%
+  
+  ggplot(.,aes(y=mean,x=year))+
+  geom_line(aes(colour=Model))+
+    geom_ribbon(aes(fill=Model,x = year, y = mean, ymin = q0.025, ymax = q0.975),
+                alpha = 0.5) +
+  geom_point(aes(y=height,x=year))+
+  facet_wrap(~Model)
+
+
+
+
+```
+
+
+## Gaussian Markov Random Fields (GMRF) {.smaller}
+
+::: {style="height: 50px;"}
+:::
+
+A random vector $\mathbf{u} = (u_1, \ldots, u_n)^\top$ is a
+**Gaussian Markov Random Field (GMRF)** with respect to a graph
+$G = (V, E)$, with mean vector $\boldsymbol{\mu}$ and precision
+matrix $\mathbf{Q}$, if its probability density is
+
+$$
+\pi(\mathbf{u}) =
+|\mathbf{Q}|^{1/2}(2\pi)^{-n/2}
+\exp\left\{
+-\frac{1}{2}
+(\mathbf{u}-\boldsymbol{\mu})^\top
+\mathbf{Q}
+(\mathbf{u}-\boldsymbol{\mu})
+\right\}.
+$$
+
+The precision matrix $\mathbf{Q}$ satisfies the Markov property:
+
+$$
+Q_{ij} \neq 0
+\quad \Longleftrightarrow \quad
+\{i,j\} \in E, \qquad i \neq j.
+$$
+
+Thus, conditional independence between two components
+$u_i$ and $u_j$, given all the remaining components, is
+encoded by zeros in the precision matrix:
+
+$$
+u_i \perp u_j \mid \mathbf{u}_{-(i,j)}
+\quad \Longleftrightarrow \quad
+Q_{ij} = 0.
+$$
+
+
+
+## Discrete time models {auto-animate="true" .smaller}
+
+
+:::: {.columns}
+
+::: {.column width="50%"}
+**Random Walks**
+
+- *RW1*: Assume independent first-order increments $\Delta u_t = u_t − u_t−1 \sim  N(0, \tau^{−1})$
+
+- *RW2* Assume independent second-order increments $\Delta^2 u_t = u_t - u_{i-t} + u_{i-t} \sim N(0, \tau^{−1})$
+
+
+:::{.fragment}
+
+- Intrinsic model $\rightarrow$ sum-to-zero constrain.
+
+
+```{r}
+#| eval: false
+cmp = ~ Intercept(1) +
+  time(year, model = "rw1",
+       constr = TRUE,
+       hyper = list(prec =
+                      list(prior = "pc.prec",
+                           param = c(0.5, 0.5))))
+```
+
+:::
+
+:::{.incremental}
+
+-   Small $\tau$ $\rightarrow$ large variation $\rightarrow$ less smooth effect
+-   Large $\tau$ $\rightarrow$ small variation $\rightarrow$ smoother effect
+    
+- PC-prior: $\text{Prob}(\sigma>U) = \alpha$ $\rightarrow$ penalize models with small precision or large variances (Baseline $\tau=0$).
+    
+:::
+
+:::
+
+
+
+::: {.column width="50%"}
+
+**AR(1)**
+
+
+- $u_t = \phi u_{t-1} + \epsilon_t; \qquad \phi\in(-1,1), \ \epsilon_t\sim\mathcal{N}(0,\tau^{-1})$
+
+
+
+:::{.fragment}
+
+```{r}
+#| eval: false
+
+pc_prior <- list(theta1 = list(prior = "pc.prec",
+                              param = c(1, 0.01)),
+                 rho = list(prior = "pc.cor0", 
+                            param = c(0.5, 0.3))) 
+
+cmp = ~ Intercept(1) +
+  time(year, model = "ar1",
+       hyper = pc_prior)
+```
+
+:::
+
+:::{.incremental}
+
+- The precision $\tau$
+
+- PC prior $\text{Prob}(\sigma > U) = \alpha$ (Baseline $\tau=0$).
+
+-   The autocorrelation parameter $\phi\in(0,1)$:
+
+    -  PC prior $\text{Prob}(|\rho| > u) = \alpha$  (Baseline $\phi = 0$ `pc.cor0`)
+
+    -  PC prior $\text{Prob}(\rho > u) = \alpha$  (Baseline $\phi = 1$ `pc.cor1`)
+
+:::
+
+
+
+:::
+
+
+::::
+
+
+
+## Continuous time models
+
+
+-   Sometimes the data are not collected at discrete time points but over continuous time
+
+-   One solution (not a bad one usually) is to discretize the time (or covariate) and use RW model (`inla.group()`).
+
+-   A different solution is to use a continuous smoother based on a continuous Gaussian Random Field (GRF) $\omega(t)$
+
+
+
+## The SPDE {.smaller}
+
+
+We define a (Matérn) GRF as the solution of a stochastic partial differential equation (SPDE)
+
+$$
+(\kappa^2-\Delta)^{\alpha/2}\omega(t) = W(t)
+$$
+
+
+-   $W(t)$ is random noise
+-   $\omega(t)$ is the smooth process we want
+-   $(\kappa^2-\Delta)^{\alpha/2}$ is an operator that "smooths" the white noise.
+-   $\kappa$ and $\alpha$ are parameters
+
+:::{.fragment}
+Approximate the solution (i.e. the GF) by a GMRF defined on a discretized domain or mesh using FEM.
+
+$$
+\omega(t) = \sum_{i = 1}^T\psi_i(t)w_i
+$$
+:::
+
+
+:::{.fragment}
+
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+
+The GF has a Matérn Covariance characterized by 
+
+-   The range $\rho$
+-   The marginal variance $\sigma^2$
+
+:::
+
+::: {.column width="50%"}
+    
+Define PC-priors:
+
+- $\text{Prob}(\rho<\rho_0) = p_{\rho}$
+- $\text{Prob}(\sigma > \sigma_0) = p_{\sigma}$
+
+:::
+:::: 
+
+:::
+
+
+
+## Fitting a SPDE in 1D 
+
+
+1.  Define a 1-dimensional mesh over the domain of interest 
+
+
+```{r}
+#| echo: true
+#| eval: false
+
+# domain of interest 0-10
+locs = seq(-3,13,1)
+mesh1d = fm_mesh_1d(locs, degree = 1, boundary = "neumann")
+
+```
+
+2.  Define the SPDE model and the prior
+
+```{r}
+#| echo: true
+#| eval: false
+
+spde <- inla.spde2.pcmatern(mesh1d,
+  prior.range = c(10, 0.5), # Prob(range<10) = 0.5
+  prior.sigma = c(1, 0.5)   # Prob(sd>1) = 0.5
+)
+```
+
+3.  Use the SPDE model in a component of your model
+
+```{r}
+#| echo: true
+#| eval: false
+
+cmp = ~ Intercept(1) + smooth(covariate, model = spde)
+```
+
+
+

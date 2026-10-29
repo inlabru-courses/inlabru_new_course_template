@@ -171,32 +171,34 @@ fit = bru(cmp, lik)
 
 ## Posterior Summaries & model fit
 
-Now we can check the results using the `summary` function directly by calling `model$summary.hyperpar`, `model$summary.fixed` and `model$summary.random`. In addition, `inlabru` objects can be passed to the `tidy()` function to produce posterior summaries of the hyperparameters and fixed effects in a `tibble` format:
+Now we can check the results using the `summary` function directly by calling `model$summary.hyperpar`, `model$summary.fixed` and `model$summary.random`. In addition, `inlabru` objects can be passed to the `tidy()` function to produce posterior summaries of the hyperparameters and fixed effects in a `tibble` format.
+
+
+::: {.panel-tabset}
+
+# Standard syntax
+
+```{r}
+fit$summary.fixed
+fit$summary.hyperpar
+
+```
+
+# broom-style syntax
 
 ```{r}
 tidy(fit)
-```
-
-
-::: {.callout-warning icon="false"}
-## {{< bi pencil-square color=#c8793c >}} Task
-
-Use the `tidy()` function to produce posterior summaries of the hyperparameters
-
-```{r}
-#| webex.hide: "Click here to see the solution"
-#| purl: false
-
 tidy(fit, "hyperpar")
-  
 ```
-:::
 
 We can also use the `glance()` function from `broom` to obtain our model's goodness-of-fit metrics in a tibble (provided we set `bru_options_set(control.compute = list(dic = TRUE, waic = TRUE))`).
 
 ```{r}
 glance(fit)
 ```
+
+:::
+
 
 ## Visualizing the posterior marginals
 
@@ -376,9 +378,31 @@ Note that, if one is interested in hyperparameters, sampling is not always the b
 
 ## Model fitted values and predictions
 
-An easy way to obtain fitted or predicted values is through the recently added compatibility with the broom-style `augment()` function, which extends the original data with posterior fitted values, or adds posterior summaries of the linear predictor to a prediction grid.
 
-First, lets have a look at the expected counts $\mathbb{E}(\widehat \lambda_{ijk}) = \exp \widehat \eta_{ijk}$ using our existing data:
+An easy way to obtain the fitted values is by using the `predict()` function or the broom-style `augment()` function, which extends the original data with posterior fitted values, or adds posterior summaries of the linear predictor to a prediction grid.
+
+Below, we compute the expected counts $\mathbb{E}(\widehat \lambda_{ijk}) = \exp \widehat \eta_{ijk}$ using our existing data and then use `ggplot` to plot the observed counts vs. the expected counts.
+
+
+::: {.panel-tabset}
+
+# `predict()` function
+
+```{r}
+fitted_values1 <- predict(fit, 
+                         grouseticks, ~ exp(year + height + brood_year + brood_year_chicken),
+               n.samples = 500L)
+
+ggplot(fitted_values1, aes(x = TICKS, y = mean)) +
+  geom_abline(slope = 1, intercept = 0, linetype = 2, colour = "grey50") +
+  geom_pointrange(aes(ymin = q0.025, ymax =  q0.975),
+                  alpha = 0.4, colour = "#1B4F5E") +
+  labs(x = "Observed ticks", y = "Expected counts") +
+  theme_minimal(base_size = 14)
+
+```
+
+# `augment()` function
 
 ```{r}
 fitted_values <- augment(
@@ -389,14 +413,6 @@ fitted_values <- augment(
   seed = 1L
 )
 
-head(fitted_values)
-```
-
-
-Then we can plot the observed counts vs. the expected counts as follows:
-
-```{r}
-#| code-fold: show
 ggplot(fitted_values, aes(x = TICKS, y = .fitted)) +
   geom_abline(slope = 1, intercept = 0, linetype = 2, colour = "grey50") +
   geom_pointrange(aes(ymin = .fitted_low, ymax = .fitted_high),
@@ -406,7 +422,10 @@ ggplot(fitted_values, aes(x = TICKS, y = .fitted)) +
 
 ```
 
-The `augment()` function in `inlabru` calls `predict()`  (which in turn calls `generate()` to draw posterior samples) so we can use `predict()` directly to look at the conditional height effect per year. To compute model predictions we can create a **prediction grid** containing a range of values of the covariate (height) where we want the response to be predicted for each year. Then we simply call the `predict` function while specifying the model components.
+
+:::
+
+To compute model predictions we can create a **prediction grid** containing a range of values of the covariate (height) where we want the response to be predicted for each year. Then we simply call the `predict` function while specifying the model components.
 
 ```{r}
 #| code-fold: show

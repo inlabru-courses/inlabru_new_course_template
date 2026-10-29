@@ -45,8 +45,6 @@ penguins = penguins %>%  drop_na()
 
 
 
-
-
 ## -----------------------------------------------------------------------------
 #| eval: true
 
@@ -65,7 +63,7 @@ summary(fit1)
 ## -----------------------------------------------------------------------------
 new_data = data.frame(flipper_len  = 170:240)
 
-pred = predict(fit1, new_data, ~ effects,
+pred = predict(fit1, new_data, ~ beta_0 + beta_1,
                n.samples = 1000)
 
 
@@ -90,11 +88,11 @@ pred %>% ggplot() +
 new_data = data.frame(flipper_len  = 170:240)
 
 pred1 = predict(fit1, new_data,
-               formula = ~ { eta = effects
+               formula = ~ { eta = beta_0 + beta_1
                              sigma = sqrt(1/Precision_for_the_Gaussian_observations)
                              list(mean = eta,
                                   q1 = qnorm(0.025, mean = eta, sd = sigma),
-                                  q2 =  qnorm(0.975, mean = eta, sd = sigma))  
+                                  q2 =  qnorm(0.975, mean = eta, sd = sigma))
                             },
                n.samples = 1000)
 
@@ -127,9 +125,25 @@ ggplot() +
 
 ## -----------------------------------------------------------------------------
 #| code-fold: true
-penguins %>% 
+penguins %>%
   ggplot() + geom_point(aes(flipper_len, body_mass, color= sex)) +
   facet_wrap(.~sex)
+
+
+## -----------------------------------------------------------------------------
+#| eval: true
+
+cmp = ~ -1 + effects( ~ sex , model = "fixed")
+
+formula = body_mass ~ effects
+
+lik = bru_obs(formula = formula,
+              data = penguins
+              )
+fit2 = bru(cmp, lik)
+
+
+
 
 
 ## -----------------------------------------------------------------------------
@@ -140,52 +154,26 @@ formula = body_mass ~ .
 lik = bru_obs(formula = formula,
               data = penguins
               )
-fit2 = bru(cmp, lik)
+fit3 = bru(cmp, lik)
 
 
 
 ## -----------------------------------------------------------------------------
-fit2$summary.random
+fit3$summary.random
 
 
 
 
-## -----------------------------------------------------------------------------
-#| code-fold: show
-
-# Here we use the _latent "trick" to recover the parameters
-# here we do not need any new data to predict for, we can use an
-# empty data frame
-
-params = predict(fit2, data.frame() ,
-   ~ data.frame( intercept_female = effects_latent[1],
-                 intercept_male = effects_latent[1] + effects_latent[2],
-                 slope_female = effects_latent[3] ,
-                 slope_male = effects_latent[3] + effects_latent[4]))
 
 
-
-## -----------------------------------------------------------------------------
-cmp = ~ -1 + sex_intercept(sex, model = "iid", initial = log(0.001), fixed = T) +
-  sex_slope(sex, flipper_len,  model = "iid", fixed = T, initial = log(0.001))
-
-lik = bru_obs(formula = body_mass ~ .,
-              data = penguins)
-
-fit2b = bru(cmp, lik)
-
-
-## -----------------------------------------------------------------------------
-fit2b$summary.random$sex_intercept
-fit2b$summary.random$sex_slope
 
 
 ## -----------------------------------------------------------------------------
 #| echo: true
 #| code-fold: true
 penguins %>%
-  ggplot() + 
-  geom_point(aes(flipper_len, body_mass, color = species)) + 
+  ggplot() +
+  geom_point(aes(flipper_len, body_mass, color = species)) +
   facet_wrap(.~sex)
 
 
@@ -199,14 +187,14 @@ penguins %>%
 # lik = bru_obs(formula = formula,
 #               data = penguins
 #               )
-# fit3 = bru(cmp, lik)
+# fit4 = bru(cmp, lik)
 
 
 
 
 ## -----------------------------------------------------------------------------
+fit4$summary.random$effects[,c(1,3,5)]
 fit3$summary.random$effects[,c(1,3,5)]
-fit2$summary.random$effects[,c(1,3,5)]
 
 
 
@@ -215,12 +203,12 @@ fit2$summary.random$effects[,c(1,3,5)]
 #| code-fold: true
 
 # Predict
-pred = predict(fit3, penguins, formula = ~ effects + species) 
+pred = predict(fit4, penguins, formula = ~ effects + species)
 
 pred %>%
   ggplot(aes(x=flipper_len,y=mean,color=factor(sex)))+
   geom_line()+
-  geom_ribbon(aes(flipper_len,ymin = q0.025, ymax= q0.975,fill=factor(sex)), alpha = 0.5) + 
+  geom_ribbon(aes(flipper_len,ymin = q0.025, ymax= q0.975,fill=factor(sex)), alpha = 0.5) +
   geom_point(data=penguins,aes(x=flipper_len,y=body_mass,colour=factor(sex)))+
   facet_wrap(~species,scales="free_x")
 
@@ -241,12 +229,46 @@ pred %>%
 #               data = penguins
 #               )
 # 
-# fit4 = bru(cmp, lik)
+# fit5 = bru(cmp, lik)
 
 
 
 
 ## -----------------------------------------------------------------------------
-deltaIC(fit1, fit2, fit3, fit4, criterion = c("DIC","WAIC"))
+deltaIC(fit1, fit2, fit3, fit4, fit5, criterion = c("DIC","WAIC"))
+
+
+
+
+
+
+
+## -----------------------------------------------------------------------------
+fitted_values <- augment(
+  fit1,
+  data = penguins,
+  pred_formula = ~ beta_0 + beta_1,
+  n_samples = 500L,
+  seed = 1L
+)
+
+head(fitted_values)
+
+
+## -----------------------------------------------------------------------------
+#| code-fold: show
+#|
+ggplot(fitted_values, aes(x = flipper_len , y = .fitted)) +
+  geom_line(col="blue")+
+  geom_ribbon(aes(ymin = .fitted_low, ymax = .fitted_high),
+                  alpha = 0.4, colour = "#1B4F5E") +
+  geom_point(aes(x = flipper_len , y = body_mass )) +
+  labs(x = "Flipper Length ticks", y = "Body Mass") +
+  theme_minimal(base_size = 14)
+
+
+
+## -----------------------------------------------------------------------------
+glance(fit1)
 
 

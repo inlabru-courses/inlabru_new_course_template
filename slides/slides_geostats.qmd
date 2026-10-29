@@ -137,16 +137,16 @@ $$
 y_i = Z(\mathbf{s}_i) + \varepsilon_i
 $$
 
-When geostatistical data are considered, we can often assume that there is a spatially continuous variable underlying the observations that can be modelled using a **random field**.
+When geostatistical data are considered, we can often assume that there is a spatially continuous variable underlying the observations that can be modeled using a **random field**.
 
 ::: incremental
 -   we have a process that is occurring everywhere in space $\rightarrow$ natural to try to model it using some sort of function (of space)
 
 -   a **random field** is a random function that generates smooth surfaces
 
--   this is hard
+-   This is hard
 
--   we typically make our lives easier by making everything Gaussian
+-   We typically make our lives easier by making everything Gaussian
 :::
 
 :::
@@ -171,27 +171,27 @@ where $\Sigma_{ij} = \mathrm{Cov}(z(\mathbf{s}_i),z(\mathbf{s}_j))$ is a dense $
 -   $C_z(\mathbf{s}_i, \mathbf{s}_j) = \mathrm{Var}(Z(\mathbf{s}_i))$ for $i = j$.
 :::
 
-<!-- ## Stationary and isotropy  -->
+## Stationary and isotropy 
 
-<!-- ::: {style="font-size: 0.85em;"} -->
+::: {style="font-size: 0.85em;"}
 
-<!-- We will assume our *Gaussian process* can be described as weakly stationary if the following criteria are met: -->
+We will assume our *Gaussian process* can be described as weakly stationary if the following criteria are met:
 
-<!-- $E[{Z(\mathbf{s})}] = \mu_z(\mathbf{s}) = \mu_z$ - a finite constant which does not depend on $\mathbf{s}$. -->
+$E[{Z(\mathbf{s})}] = \mu_z(\mathbf{s}) = \mu_z$ - a finite constant which does not depend on $\mathbf{s}$.
 
-<!-- $\text{Cov}(Z(\mathbf{s}_i),Z(\mathbf{s}_j)) = C_z(\mathbf{s}_i-\mathbf{s}_j)$ - a finite constant which can depend on distance $(\mathbf{s}_i-\mathbf{s}_j)$. -->
+$\text{Cov}(Z(\mathbf{s}_i),Z(\mathbf{s}_j)) = C_z(\mathbf{s}_i-\mathbf{s}_j)$ - a finite constant which can depend on distance $(\mathbf{s}_i-\mathbf{s}_j)$.
 
-<!-- :::{.incremental} -->
-<!-- -   Condition 1 states that our mean function must be constant in space, with no overall spatial trend. -->
+:::{.incremental}
+-   Condition 1 states that our mean function must be constant in space, with no overall spatial trend.
 
-<!-- -   Condition 2 states that for any two locations, their covariance depends only on how far apart they are (their spatial lag, $h$), not their absolute position. -->
-<!-- ::: -->
+-   Condition 2 states that for any two locations, their covariance depends only on how far apart they are (their spatial lag, $h$), not their absolute position.
+:::
 
-<!-- :::{.fragment} -->
-<!-- Our process is said to be **isotropic** if the covariance function is directionally invariant. This means that the covariance only depends on the euclidean distance $(||\mathbf{s}_i-\mathbf{s}_j||)$ and not the direction. -->
-<!-- ::: -->
+:::{.fragment}
+Our process is said to be **isotropic** if the covariance function is directionally invariant. This means that the covariance only depends on the euclidean distance $(||\mathbf{s}_i-\mathbf{s}_j||)$ and not the direction.
+:::
 
-<!-- ::: -->
+:::
 
 ## Building the model 
 
@@ -212,11 +212,11 @@ $$
 :::{.incremental}
 -   $\tau_e^{-1} = \sigma^2_e$ represents the variance of the zero-mean measurement error
 
--   The response mean $\mu_i$, which coincides with the linear predictor $\eta_i$, is defined based on:
+-   The response mean $\mu_i$ which coincides with the linear predictor $\eta_i$ is defined based on:
 
     -   the intercept $\beta_0$ and any additional covariates
 
-    -   the realization of the latent (*unobservable*) GF $Z(\mathbf{s}) \sim \mathrm{MVN}(0,\Sigma)$, which accounts for the spatial correlation through $\Sigma = C_z(\cdot,\cdot)$.
+    -   the realization of the latent (*unobservable*) GF $Z(\mathbf{s}) \sim \mathrm{MVN}(0,\Sigma)$ which accounts for the spatial correlation through $\Sigma = C_z(\cdot,\cdot)$.
     
 :::
 
@@ -276,560 +276,316 @@ a different approach to GRF models:
 
 # The SPDE approach {background-image="figures/INLADiagram.png"}
 
-## The  SPDE approach in a nutshell 
-
-![](figures/spde.png){fig-align="center" width="520"}
-
-## The stochastic partial differential equation
+## The  stochastic partial differential equation
 
 We define a (Matérn) GRF as the solution of a stochastic partial differential equation (SPDE)
 
 $$
-(\kappa^2-\Delta)^{\alpha/2}Z(t) = W(t)
+(\kappa^2-\Delta)^{\alpha/2}Z(s) = W(\mathbf{s})
 $$
 
 
-:::{.fragment}
-What is this?
-:::
-
-
-:::{.fragment}
--   $W(t)$ is random noise
--   $\omega(t)$ is the smooth process we want
--   $(\kappa^2-\Delta)^{\alpha/2}$ is an operator that "smoothes" the white noise.
+-   $W(\mathbf{s})$ is random noise
+-   $Z(\mathbf{s})$ is the smooth process we want
+-   $(\kappa^2-\Delta)^{\alpha/2}$ is an operator that "smooths" the white noise.
 -   $\kappa$ and $\alpha$ are parameters
-:::
 
 
-## Recall the 1-D SPDE {.smaller auto-animate="true" background-color="#FFFFFF"}
+
+
+## Recall: the SPDE approach in 1D {.smaller background-color="#FFFFFF"}
+
+
+````{=html}
+<style>
+.reveal .step-plots,
+.reveal .step-plots > * { width: 100%; }
+.reveal .step-plots img { width: 100%; height: auto; max-height: none; }
+</style>
+````
+
 
 :::::: columns
-:::: {.column width="40%"}
-Imagine a guitar string stretched from left to right.
+:::: {.column width="48%"}
+-   The Matérn GRF solves the SPDE $(\kappa^2-\Delta)^{\alpha/2}\, Z(t) = W(t)$
 
--   Now imagine someone randomly taps along it at many locations:
+::: {.fragment fragment-index=1}
+-   Approximate the solution using the finite element method (FEM)
+:::
 
-    ::: incremental
-    -   Each tap is independent
-    -   Some taps are strong, some weak
-    -   There is no coordination between taps
-    -   A tap at one location tells you nothing about a tap nearby
-    :::
+::: {.fragment fragment-index=2}
+1.  We discretise the time domain into $N$ elements
+:::
 
-::: fragment
-*This is pure randomness.* But a real string does not behave like this
+::: {.fragment fragment-index=3}
+2.  Each point $i=1,\ldots,N$ is associated with a piecewise linear basis function $\psi_i(t)$.
+:::
+
+::: {.fragment fragment-index=4}
+3.  The solution is the weighted sum of the basis functions and a random vector $\mathbf{w}$.
+:::
+
+::: {.fragment fragment-index=5}
+4.  $\mathbf{w}\sim N(\mathbf{0},\mathbf{Q}^{-1})$ with a **sparse** $\mathbf{Q}$ $\rightarrow$ GMRF
 :::
 ::::
 
-::: {.column width="60%"}
+::: {.column width="52%"}
 ```{r}
-#| echo: false
-#| fig-width: 10
-#| fig-height: 10
+#| include: false
 
-set.seed(2026)
-# ----- Parameters -----
-N      <- 650        # number of grid points
-x_min  <- 0
-x_max  <- 10
-x      <- seq(x_min, x_max, length.out = N)
-h      <- x[2] - x[1]   # grid spacing
-
-W <- rnorm(N, mean = 0, sd = 1)  # white noise on the grid
-
-p1 = data.frame(x =x,
-           W = W)
-
-ggplot(p1,aes(x=x,y=W))+geom_line(col="grey60")+geom_hline(yintercept = 0) + coord_cartesian(ylim = c(-1, 1)) + labs(x="t")
-
-```
-:::
-::::::
-
-::: notes
-No smoothness
-
-Sharp up/down jumps
-
-No gentle waves
-
-No continuity in behaviour
-
-That's because nothing connects one tap to the next.
-:::
-
-## Recall the 1-D SPDE {.smaller auto-animate="true" background-color="#FFFFFF"}
-
-:::::: columns
-:::: {.column width="40%"}
-Imagine a guitar string stretched from left to right.
-
--   The string has tension and stiffness
-    -   the tension spreads each tap to nearby points
-    -   Sharp jumps are softened. $(\kappa^2-\Delta)^{\color{red}{\alpha}/2}Z(t) = W(t)$
-
-::: fragment
--   $\Delta$ measures the local curvature
--   $\kappa$ controls how far randomness propagates
--   stronger tension (large $\kappa$) = stronger pull
-
-$$(\color{red}{\kappa^2}-\Delta)Z(t) = W(t), ~~~\text{for } \alpha=2$$
-:::
-::::
-
-::: {.column width="60%"}
-```{r}
-#| echo: false
-#| fig-width: 10
-#| fig-height: 10
-
-set.seed(2026)
-N      <- 650        # number of grid points
-x_min  <- 0
-x_max  <- 10
-x      <- seq(x_min, x_max, length.out = N)
-h      <- x[2] - x[1]   # grid spacing
-
-# SPDE parameters to try
-kappa_vals <- c(0.5, 1.0, 2.0)   # smaller kappa -> longer range (looser rope)
-alpha_vals <- c(2, 4)            # alpha = 2 (one smoothing), alpha = 4 (smoother)
-
-# ----- Build 1D second-difference matrix D2 -----
-# D2 * u approx = u_{i-1} - 2 u_i + u_{i+1}
-D2 <- matrix(0, nrow = N, ncol = N)
-diag(D2) <- -2
-for(i in 1:(N-1)){
-  D2[i, i+1] <- 1
-  D2[i+1, i] <- 1
-}
-# (Neumann-like) boundary handling: keep D2[1,1] = -1? We'll keep simple Dirichlet-style here:
-# (current code uses the simple interior stencil and leaves boundaries with fewer neighbors)
-
-I_N <- diag(1, N)
-
-# ----- Helper: build discrete operator A = (kappa^2 I - d2/dx2) -----
-build_A <- function(kappa) {
-  # discrete second derivative is D2 / h^2
-  A <- (kappa^2) * I_N - (D2 / (h^2))
-  # small regularization for numeric stability (optional)
-  A <- A + 1e-10 * I_N
-  return(A)
-}
-
-# ----- Helper: solve (A^m) u = W  for integer m >= 1 (alpha = 2*m) -----
-solve_alpha <- function(A, W, m = 1) {
-  # Solve A^m u = W by sequential solves: A v_1 = W, A v_2 = v_1, ..., u = v_m
-  v <- W
-  for(j in 1:m) {
-    v <- solve(A, v)
-  }
-  return(v)
-}
-
-# ----- Generate one white-noise realization -----
-W <- rnorm(N, mean = 0, sd = 1)  # white noise on the grid
-
-# alpha=2m
-
-u_fix1 <- solve_alpha(build_A(0.5), W, m = 2)  # alpha=2 -> m=1
-u_fix2 <- solve_alpha(build_A(1), W, m = 2)  # alpha=2 -> m=1
-u_fix3 <- solve_alpha(build_A(2), W, m = 2)  # alpha=2 -> m=1
-
-p1 = data.frame(x =x,
-           W = W,
-           u1  = u_fix1,
-           u2  = u_fix2,
-           u3  = u_fix3
-           ) %>%
-  ggplot() + geom_line(aes(x,W), alpha = 0.2) + geom_line(aes(x,u1, color = "k = 0.5")) +
-  geom_line(aes(x,u2, color = "k = 1")) +
-  geom_line(aes(x,u3, color = "k = 2")) + xlab("") + ylab("") + ggtitle("alpha = 2") + coord_cartesian(ylim = c(-1, 1))+scale_color_discrete(name="") +
-  theme(
-    legend.text  = element_text(size = 18),   # label text size
-    legend.key.size = unit(2, "cm"),         # size of the colour swatches
-    legend.title = element_text(size = 18)     # title (empty here, but sets size if you add one)
-  )
-
-p1 + labs(x="t")
-
-```
-:::
-::::::
-
-::: notes
-Measure the bending at $z_i$ by taking the with respect the average of the neighbours (i.e.\ $z_i - (z_{i-1}+z_i/2) = z_{i-1} + 2z_i +z_{i+1}$).
-
--   if $= 0 \rightarrow$ straight
-
--   if the diff is large $\rightarrow$ sharply bent
-
--   the sign tells you which way it bends
-
-The curvature need to divide by the spacing $h$ between points (assuming equal spacing), i.e., $(z_{i-1} + 2z_i +z_{i+1}) \times h^{-2}$.
-
-In a continuous space we measured this by taking the second derivative, i.e.\ the Laplacian operator
-
-As $h\to 0$ we measure the rate of change of slope, i.e.\ curvature as:
-
-$$(z_{i-1} + 2z_i +z_{i+1}) \times h^{-2}  \to \frac{\partial z}{\partial t^2} = \Delta z$$ Where $z(x)$ is the displacement of the string at position $t$.
-
-Tension ($\kappa$): resists large displacement If a tap pushes part of the string far up or down:
-
--   tension pulls it back
--   stronger tension = stronger pull
-
-$$
-\begin{aligned}
-(\color{red}{\kappa^2}-\Delta)Z(t) &= W(t) \\
-\color{red}{\kappa^2}Z(t) - \Delta Z(t) &= W(t)\\
-\text{if } Z(t) \text{ is large then }& \color{tomato}{\kappa^2 Z(t)} \text{ becomes large too} \\
-\text{large pull}-\text{back bending}&=\text{random tap}
-\end{aligned}
-$$ In this case, To balance the equation, $Z(t)$ must be smaller.
-:::
-
-## Recall the 1-D SPDE {.smaller auto-animate="true" background-color="#FFFFFF"}
-
-:::::: columns
-:::: {.column width="40%"}
-Imagine a guitar string stretched from left to right.
-
--   The rope has tension and stiffness
-    -   the tension spreads each tap to nearby points
-    -   Sharp jumps are softened.
-
-::: fragment
--   Stiffness = controls how smooth the field becomes ($\alpha$)
--   Larger $\alpha$ smoother the process will be
-
-$$
-(\kappa^2-\Delta)^{\color{red}{\alpha}/2}Z(t) = W(t)
-$$
-:::
-::::
-
-::: {.column width="60%"}
-```{r}
-#| echo: false
-#| fig-width: 10
-#| fig-height: 10
-
-set.seed(2026)
-
-# Grid
-N      <- 650
-x_min  <- 0
-x_max  <- 10
-x      <- seq(x_min, x_max, length.out = N)
-h      <- x[2] - x[1]
-
-# Build D2
-D2 <- matrix(0, nrow = N, ncol = N)
-diag(D2) <- -2
-for(i in 1:(N-1)){
-  D2[i, i+1] <- 1
-  D2[i+1, i] <- 1
-}
-I_N <- diag(1, N)
-
-# White noise
-W <- rnorm(N, mean = 0, sd = 1)
-
-# Fix kappa
-kappa_fixed <- 0.5
-
-# alpha = 2  -> m = 1
-u_alpha2 <- solve_alpha(build_A(kappa_fixed), W, m = 1)
-
-# alpha = 4  -> m = 2
-u_alpha4 <- solve_alpha(build_A(kappa_fixed), W, m = 2)
-
-# Plot
+library(fmesher)
 library(ggplot2)
-library(dplyr)
 
-df <- data.frame(
-  x = x,
-  W = W,
-  alpha2 = u_alpha2,
-  alpha4 = u_alpha4
-)
+# Size of the stepped figures (inches). They always fill the column width,
+# so a larger height makes them bigger on the slide.
+frame_w <- 12
+frame_h <- 12
 
-p <- df %>%
-  ggplot() +
-  geom_line(aes(x, W), alpha = 0.2) +
-  geom_line(aes(x, alpha2, color = "alpha = 2")) +
-  geom_line(aes(x, alpha4, color = "alpha = 4")) +
-  labs(
-    x = "t",
-    y = "W"
-  ) +
-  coord_cartesian(ylim = c(-1, 1)) +
-  scale_color_discrete(name = "")+
-  theme(
-    legend.text  = element_text(size = 18),   # label text size
-    legend.key.size = unit(2, "cm"),         # size of the colour swatches
-    legend.title = element_text(size = 18)     # title (empty here, but sets size if you add one)
-  )
+set.seed(2026)
 
-p
+# A smooth Matérn path on a fine 1D mesh: the solution Z(t) we want
+fine   <- fm_mesh_1d(seq(0, 10, length.out = 500))
+w_fine <- fm_sample(1, fm_matern_precision(fine, alpha = 2, rho = 4, sigma = 1))[, 1]
 
+# Coarse mesh with N = 11 nodes; the weights are the field values at the nodes
+nodes  <- 0:10
+mesh1d <- fm_mesh_1d(nodes, degree = 1)
+w      <- fm_evaluate(fine, loc = nodes, field = w_fine)
 
+# Hat functions evaluated on a fine grid (one column per node)
+tt  <- seq(0, 10, length.out = 1000)
+Psi <- as.matrix(fm_basis(mesh1d, loc = tt))
+
+# Each hat, unscaled (psi) and scaled by its weight (value), kept where psi_i > 0
+hats <- data.frame(t     = rep(tt, length(nodes)),
+                   i     = rep(seq_along(nodes), each = length(tt)),
+                   psi   = as.vector(Psi),
+                   value = as.vector(sweep(Psi, 2, w, "*")))
+hats <- hats[hats$psi > 0, ]
+
+field <- data.frame(t      = tt,
+                    truth  = fm_evaluate(fine, loc = tt, field = w_fine),
+                    approx = as.vector(Psi %*% w))
+
+# Shared axes so the frames line up exactly when they replace each other
+base <- ggplot() +
+  geom_hline(yintercept = 0, colour = "grey60") +
+  scale_x_continuous(breaks = nodes) +
+  coord_cartesian(xlim = c(0, 10), ylim = c(-1.7, 2.1)) +
+  labs(x = "t", y = NULL) +
+  theme(text = element_text(size = 30))
+
+truth_line <- function(alpha = 1)
+  geom_line(data = field, aes(t, truth), colour = "red", linewidth = 1.5, alpha = alpha)
+
+node_points <- geom_point(data = data.frame(t = nodes), aes(t, 0), size = 4)
+
+# Step 0: the continuous solution
+p0 <- base + truth_line() +
+  annotate("text", x = 8.6, y = 2, label = "Z(t)", colour = "red", size = 11) +
+  ggtitle("The solution of the SPDE")
+
+# Step 1: discretise the domain (alternate shading marks the elements)
+elements <- data.frame(xmin = head(nodes, -1), xmax = tail(nodes, -1),
+                       shade = rep(c("a", "b"), length.out = length(nodes) - 1))
+p1 <- base +
+  geom_rect(data = elements, aes(xmin = xmin, xmax = xmax, ymin = -Inf, ymax = Inf,
+                                 fill = shade), alpha = 0.25) +
+  scale_fill_manual(values = c(a = "grey70", b = "white"), guide = "none") +
+  truth_line(0.3) + node_points +
+  ggtitle(paste0(length(nodes), " nodes, ", length(nodes) - 1, " elements"))
+
+# Step 2: one hat function per node (psi_6 highlighted)
+p2 <- base + truth_line(0.3) +
+  geom_line(data = hats, aes(t, psi, group = i), colour = "grey50", linewidth = 0.8) +
+  geom_line(data = hats[hats$i == 6, ], aes(t, psi), colour = "#003865", linewidth = 2) +
+  node_points +
+  annotate("text", x = 5, y = 1.2, label = "psi[6](t)", parse = TRUE,
+           colour = "#003865", size = 11) +
+  ggtitle(expression("Basis functions" ~ psi[i](t)))
+
+# Step 3: scale each hat by its weight and add them up
+p3 <- base + truth_line() +
+  geom_line(data = hats, aes(t, value, group = i), colour = "grey35",
+            linetype = "dashed", linewidth = 0.8) +
+  geom_line(data = field, aes(t, approx), colour = "#003865", linewidth = 1.5) +
+  geom_point(data = data.frame(t = nodes, w = w), aes(t, w), size = 4) +
+  ggtitle(expression(Z(t) %~~% sum(psi[i](t) ~ w[i], i == 1, N)))
+
+# Step 4: the precision matrix of the weights
+Q  <- as.matrix(fm_matern_precision(mesh1d, alpha = 2, rho = 4, sigma = 1))
+Qd <- expand.grid(i = seq_along(nodes), j = seq_along(nodes))
+Qd$value <- ifelse(abs(Q[cbind(Qd$i, Qd$j)]) > 1e-12, Q[cbind(Qd$i, Qd$j)], NA)
+
+p4 <- ggplot(Qd, aes(j, i, fill = value)) +
+  geom_tile(colour = "grey80") +
+  scale_fill_gradient2(low = "#B2182B", mid = "white", high = "#003865",
+                       na.value = "white", guide = "none") +
+  scale_x_continuous(breaks = seq_along(nodes), position = "top", expand = c(0, 0)) +
+  scale_y_reverse(breaks = seq_along(nodes), expand = c(0, 0)) +
+  labs(x = NULL, y = NULL) +
+  labs(title = bquote(bold(Q) ~ "(" * .(length(nodes)) %*% .(length(nodes)) * ")"),
+       subtitle = paste("at most", max(rowSums(abs(Q) > 1e-12)), "non-zeros per row")) +
+  theme(text = element_text(size = 30), panel.grid = element_blank())
 ```
+
+::: {.r-stack}
+::: {.fragment .fade-out fragment-index=2}
+```{r}
+#| echo: false
+#| fig-width: !expr frame_w
+#| fig-height: !expr frame_h
+p0
+```
+:::
+
+::: {.fragment .fade-in-then-out fragment-index=2}
+```{r}
+#| echo: false
+#| fig-width: !expr frame_w
+#| fig-height: !expr frame_h
+p1
+```
+:::
+
+::: {.fragment .fade-in-then-out fragment-index=3}
+```{r}
+#| echo: false
+#| fig-width: !expr frame_w
+#| fig-height: !expr frame_h
+p2
+```
+:::
+
+::: {.fragment .fade-in-then-out fragment-index=4}
+```{r}
+#| echo: false
+#| fig-width: !expr frame_w
+#| fig-height: !expr frame_h
+p3
+```
+:::
+
+::: {.fragment .fade-in fragment-index=5}
+```{r}
+#| echo: false
+#| fig-width: !expr frame_w
+#| fig-height: !expr frame_h
+p4
+```
+:::
+:::
+
+::: {.fragment fragment-index=4}
+$$
+Z(t) = \sum_{i=1}^{N}\psi_i(t)\,w_i
+$$
+:::
 :::
 ::::::
 
 ::: notes
-Lastly $\alpha$ controls how *smooth* the final shape. E.g.,
-
-$$
-W(t) = \begin{cases}
-(\kappa^2-\Delta)Z(t) & \text{if } \alpha= 2 \text{ i.e., string resists curvature once}\\
-(\kappa^2-\Delta)^2Z(t) & \text{if } \alpha= 4 \text{ i.e., string resists curvature twice}
-\end{cases}
-$$
-
-Take the white noise $W(t)$ and smooth it once by the operator $(\kappa^2 - \Delta)^{-1}$ so the operator filters the white noise once
-
--   it reduces sharp spikes
-
--   but still leaves some visible bumps
-
-At $\alpha=2$ we smooth the result again.. Each pass removes high-frequency components (sharp bumps)
+-   The SPDE defines the Matérn field: applying the operator $(\kappa^2-\Delta)^{\alpha/2}$ to $Z$ gives white noise. Equivalently, $Z$ is white noise smoothed by the inverse operator. The plot starts with the continuous solution we want (red).
+-   Step 1: the domain is cut into elements (the shaded intervals) by $N$ nodes. In 1D, $N$ nodes give $N-1$ elements.
+-   Step 2: each node gets a hat function, 1 at its node, 0 at all other nodes, linear in between (one highlighted).
+-   Step 3: each hat is scaled by its weight $w_i$ (dashed); adding them gives the piecewise-linear approximation (navy), which follows the continuous field (red) closely when the nodes are dense relative to the range. Each $w_i$ is the value of the field at node $i$.
+-   Step 4: the weights are random, with a precision matrix $\mathbf{Q}$ in which only nearby nodes are linked (for $\alpha = 2$, neighbours and neighbours of neighbours), so most entries are zero.
+-   Last time we stated that $\mathbf{Q}$ is sparse; today we see where it comes from.
 :::
 
-## Solving the SPDE {.smaller background-color="#FFFFFF" auto-animate="true"}
 
-Ok...but we still need to solve the SPDE to find $Z(t)$!
 
-. . .
 
-Now we need to discretize the domain into T points (we cannot represent continuous space in the computer!)
 
-. . .
+## The SPDE approach in 2D {.smaller auto-animate="true"}
 
-::::: columns
-::: {.column width="50%"}
-We represent our solution as
+The SPDE is the same, but now the field is indexed by location $\mathbf{s}=(s_1,s_2)$:
 
-$$
-Z(t) = \sum_{i = 1}^T\psi_i(t)w_i,
-$$
+$$(\kappa^2-\Delta)^{\alpha/2}\, Z(\mathbf{s}) = W(\mathbf{s})$$
 
-where
+::: fragment
+Now we approximate the GRF using a triangulated mesh:
 
--   $\psi_i(t)$ are (known) basis functions for nodes $i=1,\ldots,T$
-
-    -   $\psi_i(t_i)= 1$
-
-    <!-- -->
-
-    -   $\psi_i(t_j) = 0 ~~\forall~~i \neq j$
-
-    <!-- -->
-
-    -   Linear between neighbouring nodes
+-   We construct an appropriate lower-resolution approximation of the surface by sampling it at a set of well designed points and constructing a piece-wise linear interpolant.
 :::
 
-::: {.column width="50%"}
-```{r}
-#| out-width: 70%
-
-locs = c(-5,10,15,25,40,50,60)
-mesh1d = fm_mesh_1d(locs, degree = 1, boundary = "neumann")
-p1 = ggplot() +
-  geom_fm(data = mesh1d, xlim = c(-10, 70)) +
-  geom_point(data = data.frame(x = locs, y = 0), aes(x,y)) +
-  geom_text(data = data.frame(x = locs + 0.5, y = -0.1), aes(x,y,label = 1:7))
-
-p1
-
-eval = fm_evaluator(mesh1d)
-w = round(runif(7), 3)
-
- p1 + geom_line(data = data.frame(x = eval$x,
-                           y = fm_evaluate(eval, w)),
-                aes(x,y), size = 2) + ggtitle(paste("w=",paste(round(w,2), collapse = ', ')))
-
-```
-:::
-:::::
-
-::: notes
--   "solving the SPDE" means finding a random function $Z(t)$ such that the equality $(\kappa^2-\Delta)^{\alpha/2}Z(t) = W(t)$ holds in distribution.
--   in other words, finding $Z(s)$ such that when the operator $(\kappa^2-\Delta)^{\alpha/2}$ is applied to it, it produces white noise
--   OR, The Matérn field is the Gaussian field $Z(s)$ produced by smoothing white noise $W(t)$ through the inverse operator $(\kappa^2-\Delta)^{\alpha/2}$.
--   The Matérn field is infinite-dimensional so we approximate it using a finite basis expansion
-    -   we want a simple local basis
-    -   each basis only affects neighbors
-    -   so computations become sparse
--   Each weight $w_i$ is basically the value of the field at node $i$
--   The basis functions are:
-    -   Height = 1 at node
-    -   Zero at neighboring nodes
-    -   Linear in between
--   A hat function is not the field. It is a *building block* for the field.
--   the field between nodes is interpolated linearly so the vector of weights fully defines the approximate field.
--   Since the SPDE is linear and the white noise is Gaussian, the solution is Gaussian
-:::
-
-## Solving the SPDE {.smaller background-color="#FFFFFF" auto-animate="true"}
-
-Ok...but we still need to solve the SPDE to find $Z(t)$!
-
-Now we need to discretize the domain into T points (we cannot represent continuous space in the computer!)
-
-::::: columns
-::: {.column width="50%"}
-We represent our solution as
-
-$$
-Z(t) = \sum_{i = 1}^T\psi_i(t)w_i
-$$
-
-Where
-
--   $\psi_i(t)$ are (known) basis functions for nodes $i=1,\ldots,T$
-
--   $w_i$ are (unknown) weights
-
-    -   the field value $Z(s)$ is a **linear interpolation** between the two neighboring weights
-:::
-
-::: {.column width="50%"}
-```{r}
-#| out-width: 70%
-
-locs = c(-5,10,15,25,40,50,60)
-mesh1d = fm_mesh_1d(locs, degree = 1, boundary = "neumann")
-p1 = ggplot() +
-  geom_fm(data = mesh1d, xlim = c(-10, 70)) +
-  geom_point(data = data.frame(x = locs, y = 0), aes(x,y)) +
-  geom_text(data = data.frame(x = locs + 0.5, y = -0.1), aes(x,y,label = 1:7))
-
-p1
-
-eval = fm_evaluator(mesh1d)
-w = round(runif(7), 3)
-
- p1 + geom_line(data = data.frame(x = eval$x,
-                           y = fm_evaluate(eval, w)),
-                aes(x,y), size = 2) + ggtitle(paste("w=",paste(round(w,2), collapse = ', ')))
-
-```
-:::
-:::::
-
-::: notes
--   "solving the SPDE" means finding a random function $Z(t)$ such that the equality $(\kappa^2-\Delta)^{\alpha/2}Z(t) = W(t)$ holds in distribution.
--   in other words, finding $Z(s)$ such that when the operator $(\kappa^2-\Delta)^{\alpha/2}$ is applied to it, it produces white noise
--   OR, The Matérn field is the Gaussian field $Z(s)$ produced by smoothing white noise $W(t)$ through the inverse operator $(\kappa^2-\Delta)^{\alpha/2}$.
--   The Matérn field is infinite-dimensional so we approximate it using a finite basis expansion
-    -   we want a simple local basis
-    -   each basis only affects neighbours
-    -   so computations become sparse
--   Each weight $w_i$ is basically the value of the field at node $i$
--   The basis functions are:
-    -   Height = 1 at node
-    -   Zero at neighboring nodes
-    -   Linear in between
--   A hat function is not the field. It is a *building block* for the field.
--   the field between nodes is interpolated linearly so the vector of weights fully defines the approximate field.
--   Since the SPDE is linear and the white noise is Gaussian, the solution is Gaussian
-:::
-
-## Solving the SPDE {.smaller background-color="#FFFFFF" auto-animate="true"}
-
-Ok...but we still need to solve the SPDE to find $Z(t)$!
-
-Now we need to discretize the domain into T points (we cannot represent continuous space in the computer!)
-
-::::: columns
-::: {.column width="50%"}
-We represent our solution as
-
-$$
-Z(t) = \sum_{i = 1}^T\psi_i(t)w_i
-$$
-
-Where
-
--   $\psi_i(t)$ are (known) basis functions for nodes $i=1,\ldots,T$
-
--   $w_i$ are (unknown) weights
-
--   This solution is then approximated using a finite combination of piece-wise linear basis functions.
-
--   The solution is completely defined by a Gaussian vector of weights with zero mean and a sparse precision matrix.
-:::
-
-::: {.column width="50%"}
-```{r}
-#| out-width: 70%
-
-locs = c(-5,10,15,25,40,50,60)
-mesh1d = fm_mesh_1d(locs, degree = 1, boundary = "neumann")
-p1 = ggplot() +
-  geom_fm(data = mesh1d, xlim = c(-10, 70)) +
-  geom_point(data = data.frame(x = locs, y = 0), aes(x,y)) +
-  geom_text(data = data.frame(x = locs + 0.5, y = -0.1), aes(x,y,label = 1:7))
-
-p1
-
-eval = fm_evaluator(mesh1d)
-w = round(runif(7), 3)
-
- p1 + geom_line(data = data.frame(x = eval$x,
-                           y = fm_evaluate(eval, w)),
-                aes(x,y), size = 2) + ggtitle(paste("w=",paste(round(w,2), collapse = ', ')))
-
-```
-:::
-:::::
-
-## The SPDE approach on 2D {.smaller auto-animate="true"}
-
-Now we approximate the GRF using a triangulated mesh.
-
+::: fragment
 The SPDE approach represents the continuous spatial process as a continuously indexed Gaussian Markov Random Field (GMRF)
-
--   We construct an appropriate lower-resolution approximation of the surface by sampling it in a set of well designed points and constructing a piece-wise linear interpolant.
+:::
 
 ![](figures/spde.png){fig-align="center" width="520"}
 
-## The SPDE approach on 2D {.smaller auto-animate="true"}
 
-Now we approximate the GRF using a triangulated mesh.
+## The SPDE approach in 2D {.smaller auto-animate="true"}
 
-The SPDE approach represents the continuous spatial process as a continuously indexed Gaussian Markov Random Field (GMRF)
 
--   We construct an appropriate lower-resolution approximation of the surface by sampling it in a set of well designed points and constructing a piece-wise linear interpolant.
+Define a projector matrix $A$ that maps the field from the **mesh nodes** onto the data **locations**
 
--   Note that $\nu = \alpha - d/2$. For $\alpha=2 \Rightarrow \nu= 1$ since $d=2$ we have that:
 
-::: {.callout-note icon="false"}
+<iframe src="mesht2obs.html" width="100%" height="560" style="border: none;"></iframe>
+
+
+
+
+::: notes
+-   The mesh has 16 nodes;$\mathbf{s}= s_1,s_2,s_3,s_4$ are observation locations.
+-   Each node $i$ has a basis function $\psi_i(s)$  that takes the value of 1 at node $i$, 0 at every other node and flat on each triangle.
+-   At a the location $s_j$ only three basis functions are non-zero: those of the corners of the triangle containing $s_j$. Their heights at  $s_j$ are the interpolation weights which sum to 1.
+-   So "the height of the basis where the point lies" becomes "the value of basis function $\psi_i$ at $s_j$,
+-   The weight of each corner (edge) is the area of the sub-triangle opposite it, divided by the area of the triangle
+-   Stacking these weights for all observations gives the projector matrix $A$ that maps the mesh to the observations
+-   The field is $Z(s_j) = \sum_i \psi_i(s_j) w_i$, the sum of the product between the basis evaluated at $s_j$ and the values of field at node $i$ (there $\psi_i = 1$ and all other basis functions are 0); between nodes, Z is a linear interpolation of the $w_i$.
+-   The node values are unknown and get a Gaussian prior, $\mathbf{w} \sim N(\mathbf{0}, \mathbf{Q}^{-1})$. 
+:::
+
+
+
+## The precision matrix $\mathbf{Q}$ {.smaller background-color="#FFFFFF"}
+
+
+:::::: columns
+:::: {.column width="60%"}
+
+::: {style="font-size: 0.86em;"}
+
+The solution of the SPDE is approximated by @lindgren2010explicit as:
+
 $$
 \begin{aligned}
 Z(s) &= \sum_{i = 1}^K\psi_i(s)w_i \\
 \mathbf{w} &\sim N(\mathbf{0},Q^{-1}) \leftarrow \text{GMRF}\\
-Q^{-1} &= \tau^2(\kappa^4 \mathbf{C} + 2\kappa^2 \mathbf{G}+\mathbf{G}\mathbf{C}^{-1}\mathbf{G})
 \end{aligned}
 $$
 
--   $\mathbf{C}$ is diagonal with entries $C_{ii} =\int \psi_i(s)\mathrm{d}s$ and measures how much of the domain each basis function covers.
 
--   $G_{ij} = \int \nabla \psi_i(s) \nabla \psi_j(s) \mathrm{d}s$ reflects the connectivity of the mesh nodes.
 
--   because each basis function overlaps only with nearby ones, the resulting precision matrix is sparse, meaning each coefficient depends directly only on its neighbors
+
+-   FEM builds $\mathbf{Q}$ from two mesh matrices:
+
+$$
+Q = \kappa^4 \mathbf{C} + 2\kappa^2 \mathbf{G}+\mathbf{G}\mathbf{C}^{-1}\mathbf{G})
+$$
+
+
+:::{.incremental}
+-   $C_{ij} = \langle\psi_i,\psi_j\rangle$:  measures how much of the domain each basis function covers.
+-   $G_{ij}=\int\nabla\psi_i\cdot\nabla\psi_j\,d\mathbf{s}$: non-zero only if $i$ and $j$ share an edge and reflects the connectivity of the mesh nodes.
+-   because each basis function overlaps only with nearby ones, the resulting precision matrix is sparse.
 :::
 
-::: notes
-we approximate a continuous string/field using local "hat2 shapes;
-
--   C just measures how much space each hat covers (mass/area),
--   G measures how strongly neighboring hats resist bending
 :::
+
+:::: 
+
+:::: {.column width="40%"}
+
+
+<iframe src="precision-Q-vertical.html" width="100%" height="560" style="border: none;"></iframe>
+
+:::: 
+:::::: 
+
 
 ## In summary {.smaller}
 
@@ -864,13 +620,13 @@ Penalized Complexity (PC) priors proposed by Simpson et al. ([2017](https://proj
 ::: {style="height: 50px;"}
 :::
 
--   D.\ Miller, R.\  Glennie and A.\ Seaton. (2020). Understanding the Stochastic Partial Differential Equation Approach to Smoothing. *Journal of Agricultural, Biological and Environmental Statistics*, 25(1), 1-16.
+-   D. Miller, R.  Glennie, R. and A. Seaton. (2020). Understanding the Stochastic Partial Differential Equation Approach to Smoothing. *Journal of Agricultural, Biological and Environmental Statistics*, 25(1), 1-16.
 
--   F.\ Lindgren, H.\ Rue, and J.\ Lindström. An explicit link between Gaussian fields and Gaussian Markov random fields: The SPDE approach (with discussion). In: *Journal of the Royal Statistical Society, Series B* 73.4 (2011), pp. 423–498.
+-   F. Lindgren, H. Rue, and J. Lindström. An explicit link between Gaussian fields and Gaussian Markov random fields: The SPDE approach (with discussion). In: *Journal of the Royal Statistical Society, Series B* 73.4 (2011), pp. 423–498.
 
--   H.\ Bakka, H.\ Rue, G.\ A.\ Fuglstad, A.\ Riebler, D.\ Bolin, J.\ Illian, E.\ Krainski, D.\ Simpson, and F.\ Lindgren. Spatial modelling with R-INLA: A review. In: *WIREs Computational Statistics* 10:e1443.6 (2018). (Invited extended review). DOI: 10.1002/wics.1443.
+-   H. Bakka, H. Rue, G. A. Fuglstad, A. Riebler, D. Bolin, J. Illian, E. Krainski, D. Simpson, and F. Lindgren. Spatial modelling with R-INLA: A review. In: *WIREs Computational Statistics* 10:e1443.6 (2018). (Invited extended review). DOI: 10.1002/wics.1443.
 
--   E.T.\ Krainski, V.\ Gómez-Rubio, H.\ Bakka, A.\ Lenzi, D.\ Castro-Camilio, D.\ Simpson, F\. Lindgren, and H. Rue. *Advanced Spatial Modeling with Stochastic Partial Differential Equations using R and INLA*. Github version \url{www.r-inla.org/spde-book}. CRC press, Dec. 20
+-   E. T. Krainski, V. Gómez-Rubio, H. Bakka, A. Lenzi, D. Castro-Camilio, D. Simpson, F. Lindgren, and H. Rue. *Advanced Spatial Modeling with Stochastic Partial Differential Equations using R and INLA*. Github version \url{www.r-inla.org/spde-book}. CRC press, Dec. 20
 
 
 # Modelling Pacific Cod Distribution {background-image="figures/cod.jpg"}
@@ -1333,7 +1089,7 @@ $$ where $\Theta$ denotes *all* latent components and hyperparameters.
 
 ::: incremental
 -   $\pi(\tilde{Y} \mid \Theta, y)$ depends on the task:
-    -   extrapolation (e.g.\ forecasting): $\pi(Y_{n+1} \mid \Theta, y_n)$,
+    -   extrapolation(e.g. forecasting): $\pi(Y_{n+1} \mid \Theta, y_n)$,
     -   **interporlation**: $\pi(Y_i \mid y_{i-1}, y_{i+1}, \Theta)$,
 -   Spatial prediction fits naturally into this framework:
     -   $\tilde{Y}$ may represent $Z(s_0)$, $\eta_0$, or the response at $y(s_0)$,
@@ -1447,27 +1203,7 @@ spde_pred +  eta_pred + p_pred + plot_layout(ncol=1)
 
 -   pc-priors are also relevant for spatial models, e.g. to avoid overfitting
 
-# References {.smaller data-title-offset="true"}
 
-[@bakka2019non @cameletti2013spatio @bryce2022unified  @fichera2023spatial  @lamouroux2025addressing @lindgren2010explicit @lindgren2022spde @miller2020understanding @moraga2021bayesian @simpson2017 ]{style="display:none"}
-
-::: {#refs}
-:::
-
-```{=html}
-<script>
-document.querySelectorAll('#refs [id^="ref-"]').forEach(function(entry) {
-  var key = entry.id;                       // e.g. "ref-besag1991"
-  var a = document.createElement('a');
-  a.href = '../references.html#' + key;
-  a.target = '_blank';
-  a.style.textDecoration = 'none';
-  a.style.color = 'inherit';
-  while (entry.firstChild) a.appendChild(entry.firstChild);
-  entry.appendChild(a);
-});
-</script>
-```
 
 
 

@@ -14,19 +14,6 @@ editor_options:
 ---
 
 
-
-::: {.sidebar}
-## Links
-- [GitHub Repository](https://github.com/yourrepo)
-- [Slides](slides/slides_1.html)
-
-## License
-[CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)
-
-## Citation
-Belmont, Martino, Illian (2026). *Spatio-temporal models with inlabru*. Noumea, New Caledonia.
-:::
-
 ```{r}
 #| echo: false
 #| message: false

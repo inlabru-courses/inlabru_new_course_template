@@ -45,9 +45,14 @@ grouseticks  = grouseticks %>%
 
 
 ## -----------------------------------------------------------------------------
+fit$summary.fixed
+fit$summary.hyperpar
+
+
+
+## -----------------------------------------------------------------------------
 tidy(fit)
-
-
+tidy(fit, "hyperpar")
 
 
 ## -----------------------------------------------------------------------------
@@ -97,6 +102,20 @@ fit$marginals.fixed$height %>%
 
 
 ## -----------------------------------------------------------------------------
+fitted_values1 <- predict(fit, 
+                         grouseticks, ~ exp(year + height + brood_year + brood_year_chicken),
+               n.samples = 500L)
+
+ggplot(fitted_values1, aes(x = TICKS, y = mean)) +
+  geom_abline(slope = 1, intercept = 0, linetype = 2, colour = "grey50") +
+  geom_pointrange(aes(ymin = q0.025, ymax =  q0.975),
+                  alpha = 0.4, colour = "#1B4F5E") +
+  labs(x = "Observed ticks", y = "Expected counts") +
+  theme_minimal(base_size = 14)
+
+
+
+## -----------------------------------------------------------------------------
 fitted_values <- augment(
   fit,
   data = grouseticks,
@@ -105,11 +124,6 @@ fitted_values <- augment(
   seed = 1L
 )
 
-head(fitted_values)
-
-
-## -----------------------------------------------------------------------------
-#| code-fold: show
 ggplot(fitted_values, aes(x = TICKS, y = .fitted)) +
   geom_abline(slope = 1, intercept = 0, linetype = 2, colour = "grey50") +
   geom_pointrange(aes(ymin = .fitted_low, ymax = .fitted_high),

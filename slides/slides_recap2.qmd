@@ -1,0 +1,355 @@
+---
+title: "Recap"
+from: markdown+emoji
+subtitle: "Introduction to Spatial Statistics " 
+format:
+  revealjs:
+    code-line-numbers: true
+    logo:  NTNU_UofG.png
+    theme: uofg_theme.scss
+    footer: "<a href='../index.html'>Back to Home</a>"
+    header-includes: |
+      <script src="custom.js" type="application/javascript"></script>
+    toc: false
+    toc-depth: 1
+    toc-title: ""
+slide-number: "c/t"
+title-slide-attributes:
+    data-background-size: cover
+    data-background-opacity: "0.55"
+author:
+  - name: Sara Martino
+    #orcid: 0000-0002-6879-4412
+    email: sara.martino@ntnu.no
+    affiliations: Dept. of Mathematical Science, NTNU
+  - name: Janine Illian
+    #orcid: 0000-0002-6879-4412
+    email: Janine.Illian@glasgow.ac.uk
+    affiliations: University of Glasgow 
+  - name: Jafet Belmont
+    #orcid: 0000-0002-6879-4412
+    email: Jafet.Belmont@glasgow.ac.uk
+    affiliations: University of Glasgow   
+# date: May 22, 2025
+# bibliography: references.bib
+embed-resources: true
+execute:
+  allow-html: true
+  freeze: auto
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+```{r setup}
+# #| include: false
+
+knitr::opts_chunk$set(echo = FALSE,
+                      message=FALSE,
+                      warning=FALSE,
+                      strip.white=TRUE,
+                      prompt=FALSE,
+                      fig.align="center",
+                       out.width = "60%")
+
+library(knitr)    # For knitting document and include_graphics function
+library(ggplot2)  # For plotting
+library(png)
+library(tidyverse)
+library(INLA)
+library(BAS)
+library(patchwork)
+library(inlabru)
+
+```
+
+
+
+# Spatial data
+
+## Spatial data structures {.smaller auto-animate="true" background-color="#FFFFFF"}
+
+We can distinguish three types of spatial data structures
+
+:::::: columns
+::: {.column width="33.33%"}
+**Areal data**
+
+![Map of bird conservation regions (BCRs) showing the proportion of bird species within each region showing a declining trend](figures/BCRtrends.jpg){fig-align="center" width="442"}
+:::
+
+::: {.column width="33.33%"}
+**Geostatistical data**
+
+![Scotland river temperature monitoring network](figures/srtmn-png.png){fig-align="center" width="605"}
+:::
+
+::: {.column width="33.33%"}
+**Point pattern data**
+
+![Occurrence records of four ungulate species in Tibet,](figures/10980_2021_1202_Fig1_HTML.png){fig-align="center" width="421"}
+:::
+::::::
+
+## Spatial data structures {.smaller auto-animate="true" background-color="#FFFFFF"}
+
+We can distinguish three types of spatial data structures
+
+:::::: columns
+::: {.column width="60%"}
+**Areal data**
+
+In areal data our measurements are summarised across a set of **discrete**, non-overlapping spatial units.
+
+![Map of bird conservation regions (BCRs) showing the proportion of bird species within each region showing a declining trend](figures/BCRtrends.jpg){fig-align="center" width="442"}
+:::
+
+::: {.column width="20%"}
+**Geostatistical data**
+
+![Scotland river temperature monitoring network](figures/srtmn-png.png){fig-align="center" width="605"}
+:::
+
+::: {.column width="20%"}
+**Point pattern data**
+
+![Occurrence records of four ungulate species in Tibet](figures/10980_2021_1202_Fig1_HTML.png){fig-align="center" width="421"}
+:::
+::::::
+
+# Areal models
+
+
+## Conditional autoregressive models {.smaller background-color="#FFFFFF"  auto-animate="TRUE"}
+
+:::: columns
+::: {.column width="50%"}
+**Markov in Space:**
+
+First order conditional autoregressive model or a CAR(1) model.
+
+- Every node is conditionally dependent on its four nearest neighbours
+
+![](figures/markov.png){fig-align="center" width="293"}
+:::
+
+::: {.column width="50%"}
+::: incremental
+- Models based on neighbourhood have a name in statistics: they are **Markovian models**
+
+- Markovian models are specified entirely through "*neighbourhood structures*"
+
+![](figures/mp1.png){fig-align="center" width="423"}
+
+:::
+:::
+::::
+
+
+
+
+## Conditional autoregressive models {.smaller background-color="#FFFFFF"  auto-animate="TRUE"}
+
+:::: columns
+::: {.column width="50%"}
+**Markov in Space:**
+
+First order conditional autoregressive model or a CAR(1) model.
+
+- Every node is conditionally dependent on its four nearest neighbours
+
+![](figures/markov.png){fig-align="center" width="293"}
+:::
+
+::: {.column width="50%"}
+
+- Models based on neighbourhood have a name in statistics: they are **Markovian models**
+
+- Markovian models are specified entirely through "*neighbourhood structures*"
+
+![](figures/mp2.png){fig-align="center" width="423"}
+
+:::
+::::
+
+
+## Modelling spatial similarity {.smaller auto-animate="TRUE"}
+
+Example of a GMRF we covered
+
+::: callout
+## ICAR/Besag model
+
+$$u_i|\mathbf{u}_{-i},\tau_u, \sim N\left(\frac{1}{d_i}\sum_{j\sim i}u_j,\frac{1}{d_i\tau_u}\right)$$
+
+- $\tau_u$: precision parameter proportional to the number of neighbours.
+
+- $d_i$ is the number of neighbours
+
+$$\mathbf{u}|\tau_u \sim N\left(0,\frac{1}{\tau_u}Q^{-1}\right),$$
+
+Where $Q$ denotes the precision matrix defined as
+
+$$Q_{i,j} = \begin{cases}
+d_i, & i = j \\
+-1, & i \sim j \\
+0, &\text{otherwise}
+\end{cases}$$
+:::
+
+## Modelling spatial similarity {.smaller auto-animate="TRUE"}
+
+
+
+Example of a GMRF we covered
+
+::: callout
+## ICAR/Besag model
+
+$$u_i|\mathbf{u}_{-i},\tau_u, \sim N\left(\frac{1}{d_i}\sum_{j\sim i}u_j,\frac{1}{d_i\tau_u}\right)$$
+:::
+
+::: callout
+## BYM
+
+$$\begin{aligned}
+v_i &= \underbrace{u_i}_{\text{ICAR}} + \underbrace{z_i}_{iid}\\
+z_i|\tau_z &\sim N(0,\tau_{z}^{-1})
+\end{aligned}$$
+ - Higher $\tau_u$ values lead to stronger smoothing (less spatial variability).
+
+- Lower $\tau_u$ values allow for greater local variation.
+:::
+
+::: fragment
+- To compare smoothness we need to *scale* the model (this is **NOT** done by default in the definition of the `besag` model in `inlabru`)
+- For disconnected graphs (or graphs with islands) some care is needed when defining the sum-to-zero constraints
+:::
+
+## Modelling spatial similarity {.smaller auto-animate="TRUE"}
+
+
+Example of a GMRF we covered
+
+::: callout
+## ICAR/Besag model
+
+$$u_i|\mathbf{u}_{-i},\tau_u, \sim N\left(\frac{1}{d_i}\sum_{j\sim i}u_j,\frac{1}{d_i\tau_u}\right)$$
+:::
+
+::: callout
+## BYM
+
+$$\begin{aligned}
+v_i &= \underbrace{u_i}_{\text{ICAR}} + \underbrace{z_i}_{iid}\\
+z_i|\tau_z &\sim N(0,\tau_{z}^{-1})
+\end{aligned}$$
+:::
+
+::: callout
+## BYM 2
+
+$$    \mathbf{b} = \dfrac{1}{\sqrt{\tau_b}} \left(\sqrt{1-\phi}v^*+\sqrt{\phi}u^*\right).$$
+
+- The precision $\tau_b>0$ controls the marginal variance contribution of the weighted sum $u^*$ and $v^*$.
+
+- The mixing parameter $0 \leq \phi \leq 1$ measures the proportion of the marginal variance explained by the structured effect $u^*$
+
+$$\begin{aligned}
+P(1/\sqrt{\tau_b} > U) &= P(\sigma_{\tau_b} > U) = \alpha\\
+P(\phi < U) &= \alpha
+\end{aligned}$$
+:::
+
+# Non-linear predictors
+
+## Extending INLA to non-linear predictors {.smaller}
+
+::: smaller
+In addition to being a wrapper around R-INLA, `inlabru` extends the scope of INLA to models with non-linear predictors $\tilde{\eta}(\mathbf{u})$.
+:::
+
+. . .
+
+::::::: columns
+:::: {.column width="70%"}
+::: smaller
+:bulb: **The idea** :bulb:
+
+- Linearize $\tilde{\eta}(\mathbf{u})$ using a first-order Taylor expansion around $\mathbf{u}_0$:
+
+$$
+\tilde{\eta}(\mathbf{u}) \approx \tilde{\eta}(\mathbf{u}_0) + f_{\text{linear}}(\mathbf{u}) = \bar{\eta}(\mathbf{u})
+$$
+
+- Run INLA for the linearized problem\
+- Iterate until convergence
+  - $\tilde{\eta}(\mathbf{u}_0)$ close enough to $\bar{\eta}(\mathbf{u_0})$
+:::
+::::
+
+:::: {.column width="30%"}
+::: {.callout-note .smaller}
+**Note**
+
+For details:\
+<https://arxiv.org/abs/2407.00791v1>
+:::
+::::
+:::::::
+
+
+## Extending INLA to non-linear predictors
+
+- The linearization is an approximation on top of the "usual" INLA approximation
+- Accuracy will depend on the nature of the non-linearity around $\mathbf{u}_0$ and the choice of convergence criteria.
+- Greater care than usual is needed for the choice of priors.
+
+
+. . .
+
+Some checks are possible (see the arxive paper)...
+
+**BUT** this method is still in an "experimental" mode, so great care is needed!
+
+
+## Example {.smaller}
+
+$$
+\begin{align}
+y_t &\sim\mathcal{N}(\eta_t,\sigma^2)\\
+\eta_t &= L(1-\exp(-k(t-t_0)))\\
+L &\sim\exp(1/300); \qquad k \sim\exp(2);\qquad t_0\sim\exp(1)
+\end{align}
+$$
+
+```{r}
+#| eval: false
+#| echo: true
+#| message: false
+#| code-line-numbers: "1-2|3-17|9-13|15-22"
+#| 
+scale_par <- sd(df$y)
+df <- df %>% mutate(y_scale = y / scale_par)
+
+cmp <- ~ -1 +
+  L(1, prec.linear = 1, marginal = bm_marginal(qexp, rate = scale_par / 300)) +
+  kappa(1, prec.linear = 1, marginal = bm_marginal(qexp, rate = 2)) +
+  t0(1, -1, prec.linear = 1, marginal = bm_marginal(qexp, rate = 1))
+
+growth_function <- function(L, kappa, t0, age) {
+  L * (1 - exp(-kappa * (age - t0)))
+}
+
+formula <- y ~  growth_function(L, kappa, t0, age)
+
+lik <- bru_obs(
+  formula = formula,
+  family = "gaussian",
+  data = df
+)
+bru_options_set(bru_verbose = 1, bru_max_iter = 20)
+fit <- bru(cmp, lik)
+```
+

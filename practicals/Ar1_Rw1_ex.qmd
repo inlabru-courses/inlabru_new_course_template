@@ -218,7 +218,7 @@ Plot the fitted values of the model, has the overfitting problem being alleviate
 #| webex.hide: "Click here to see the solution"
 #| code-fold: show
 #| purl: false
-#| echo: false
+#| echo: true
 #| fig-align: center
 #| fig-width: 4
 #| fig-height: 4

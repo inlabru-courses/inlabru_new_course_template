@@ -8,13 +8,16 @@ project:
   - slides/slides_1.qmd
   - slides/slides_2.qmd
   - slides/slides_3.qmd
+  - slides/slides_recap1.qmd
   - slides/slides_intro_spatial.qmd
   - slides/slides_areal.qmd
+  - slides/non_linear_predictor_slides.qmd
   - slides/slides_geostats.qmd
   - slides/slides_points.qmd
   - slides/slides_spatioTemporal.qmd
   - slides/slides_Model_Comparison.qmd
   - slides/slides_multilik.qmd
+  - slides/slides_Closing_Remarks.qmd
   - practicals/LMM_ex.qmd
   - practicals/GLMM_fit.qmd
   - day2_practical_3.qmd
@@ -50,16 +53,20 @@ website:
         href: slides/slides_intro_spatial.qmd
       - text: Slides 5 - Area Data
         href: slides/slides_areal.qmd
-      - text: Lecture 6 - Geostatistics
+      - text: Slides 6 - Non Linear Models
+        href: slides/non_linear_predictor_slides.qmd
+      - text: Lecture 7 - Geostatistics
         href: slides/slides_geostats.qmd
-      - text: Lecture 7 - Point Processes 
+      - text: Lecture 8 - Point Processes 
         href: slides/slides_points.qmd
-      - text: Slides 8 - Spatio-Temporal Models
+      - text: Slides 9 - Spatio-Temporal Models
         href: slides/slides_spatioTemporal.qmd
-      - text: Slides 9 - Model Comparison
+      - text: Slides 10 - Model Comparison
         href: slides/slides_Model_Comparison.qmd
-      - text: Slides 10 - Multiple Likelihoods Models
+      - text: Slides 11 - Multiple Likelihoods Models
         href: slides/slides_multilik.qmd
+      - text: Slides 12 - Closing Remarks
+        href: slides/slides_Closing_Remarks.qmd
         
     - text: Practicals
       menu:

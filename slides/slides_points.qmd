@@ -204,6 +204,10 @@ $$
 -   The maximum likelihood estimators is $\hat{\lambda} = n/|\Omega|$.
 
 -   For **IPP**, the integral in the likelihood has to be approximateda as a weighted sum.
+
+$$\int_\Omega \lambda(\mathbf{s}) \mathrm{d}\mathbf{s} \approx \sum_{j=1}^J w_j \lambda(\mathbf{s}_j)$$
+
+
 :::
 
 <!-- ## The Grid approach -->
@@ -234,44 +238,44 @@ $$
 
 <!-- - @simpson2016going proposed an alternative approached that can be extended to LGCPs -->
 
-## Inhomogeneous Poisson process
+<!-- ## Inhomogeneous Poisson process -->
 
-This integral is approximated as $\int_\Omega \lambda(\mathbf{s}) \mathrm{d}\mathbf{s} \approx \sum_{j=1}^J w_j \lambda(\mathbf{s}_j)$
+<!-- This integral is approximated as $\int_\Omega \lambda(\mathbf{s}) \mathrm{d}\mathbf{s} \approx \sum_{j=1}^J w_j \lambda(\mathbf{s}_j)$ -->
 
--   $w_j$ are the integration weights
+<!-- -   $w_j$ are the integration weights -->
 
--   $\mathbf{s}_j$ are the quadrature locations.
+<!-- -   $\mathbf{s}_j$ are the quadrature locations. -->
 
-This serves two purposes:
+<!-- This serves two purposes: -->
 
-1.  Approximating the integral
+<!-- 1.  Approximating the integral -->
 
-2.  re-writing the inhomogeneous Poisson process likelihood as a regular Poisson likelihood.
+<!-- 2.  re-writing the inhomogeneous Poisson process likelihood as a regular Poisson likelihood. -->
 
-## Inhomogeneous Poisson process {.smaller}
+<!-- ## Inhomogeneous Poisson process {.smaller} -->
 
-The idea behind the trick to rewrite the approximate likelihood is to introduce a dummy vector $\mathbf{z}$ and an integration weights vector $\mathbf{w}$ of length $J + n$
+<!-- The idea behind the trick to rewrite the approximate likelihood is to introduce a dummy vector $\mathbf{z}$ and an integration weights vector $\mathbf{w}$ of length $J + n$ -->
 
-::::: columns
-::: {.column width="50%"}
-$$\mathbf{z} = \left[\underbrace{0_1, \ldots,0_J}_\text{quadrature locations}, \underbrace{1_1, \ldots ,1_n}_{\text{data points}} \right]^\intercal$$
-:::
+<!-- ::::: columns -->
+<!-- ::: {.column width="50%"} -->
+<!-- $$\mathbf{z} = \left[\underbrace{0_1, \ldots,0_J}_\text{quadrature locations}, \underbrace{1_1, \ldots ,1_n}_{\text{data points}} \right]^\intercal$$ -->
+<!-- ::: -->
 
-::: {.column width="50%"}
-$$\mathbf{w} = \left[ \underbrace{w_1, \ldots, w_J}_\text{quadrature locations}, \underbrace{0_1, \ldots, 0_n}_\text{data points} \right]^\intercal$$
-:::
-:::::
+<!-- ::: {.column width="50%"} -->
+<!-- $$\mathbf{w} = \left[ \underbrace{w_1, \ldots, w_J}_\text{quadrature locations}, \underbrace{0_1, \ldots, 0_n}_\text{data points} \right]^\intercal$$ -->
+<!-- ::: -->
+<!-- ::::: -->
 
-Then the approximate likelihood can be written as
+<!-- Then the approximate likelihood can be written as -->
 
-$$
-\begin{aligned}
-p(\mathbf{z} | \lambda) &\propto \prod_{i=1}^{J + n} \eta_i^{z_i} \exp\left(-w_i \eta_i \right) \\
-\eta_i &= \log\lambda(\mathbf{s}_i) = \mathbf{x}(s)'\beta
-\end{aligned}
-$$
+<!-- $$ -->
+<!-- \begin{aligned} -->
+<!-- p(\mathbf{z} | \lambda) &\propto \prod_{i=1}^{J + n} \eta_i^{z_i} \exp\left(-w_i \eta_i \right) \\ -->
+<!-- \eta_i &= \log\lambda(\mathbf{s}_i) = \mathbf{x}(s)'\beta -->
+<!-- \end{aligned} -->
+<!-- $$ -->
 
--   This is similar to a product of Poisson distributions with means $\eta_i$, exposures $w_i$ and observations $z_i$
+<!-- -   This is similar to a product of Poisson distributions with means $\eta_i$, exposures $w_i$ and observations $z_i$ -->
 
 ## Limitations with IPP
 
@@ -305,8 +309,8 @@ How do we model $\xi(s)$ ?
 
 :::{.incremental}
 -   We use an SPDE model!
--   The software `inlabru` has implemented some integration schemes that are especially well suited to integrating the intensity in models with an SPDE effect.
--   By default, `inlabru` uses the same points to define the SPDE approximation and to approximate the integral in the likelihood, but this can be changed.
+-   The software `inlabru` has implemented some integration schemes that are especially well suited to integrating the intensity in models with an SPDE effect (location of point are not approximated!).
+-   By default, `inlabru` uses the same points to define the SPDE approximation and to approximate the integral in the likelihood (mesh nodes), but this can be changed.
 :::
 
 :::
@@ -880,7 +884,7 @@ ggplot() +
 ```
 
 :::{.callout-note}
-Note that the mean field is, by definition, smoother than any realization of the field. Instead we can draw simulations of the field from the posterior distribution using the `generate()` function.
+Note that the mean field is, by definition, smoother than any realization of the field. Instead we can draw simulations of the filed from the posterior distribution using the `generate()` function.
 :::
 
 ##  Posterior quantities {.smaller}
@@ -919,18 +923,18 @@ ggplot(data = data.frame(N = as.vector(N_fires))) +
 
 
 
-## Take-home messages
+## Summary of points
 
 ::: incremental
--   Point processes are a stochastic processes that describe the locations where events occur
+-   Point process are a stochastic processes that describe the locations where events occur
 
--   Unlike geostatistical data where the locations are fixed, here the locations have a stochastic nature; *the locations are our data*!
+-   Unlike geostatistical data where the locations are fixed, here the locations have a stochastic nature *the locations are our data*!
 
--   IPPs allow the intensity of the point process to vary across space through spatially varying covariates.
+-   IPP allows the intensity of the point process to vary across space through spatially varying covariates.
 
 -   Numerical integration schemes are required to estimate the parameters of an IPP
 
--   LGCP are a doubly stochastic process that extends IPP models by allowing the intensity function to vary spatially according to a structured spatial random effect
+-   LGCP are a double stochastic process that extend IPP models by allowing the intensity function to vary spatially according to a structured spatial random effect
 :::
 
 

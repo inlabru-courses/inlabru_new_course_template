@@ -171,24 +171,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="dropdown-text">Slides 5 - Area Data</span></a>
   </li>  
         <li>
+    <a class="dropdown-item" href="./slides/non_linear_predictor_slides.html">
+ <span class="dropdown-text">Slides 6 - Non Linear Models</span></a>
+  </li>  
+        <li>
     <a class="dropdown-item" href="./slides/slides_geostats.html">
- <span class="dropdown-text">Lecture 6 - Geostatistics</span></a>
+ <span class="dropdown-text">Lecture 7 - Geostatistics</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./slides/slides_points.html">
- <span class="dropdown-text">Lecture 7 - Point Processes</span></a>
+ <span class="dropdown-text">Lecture 8 - Point Processes</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./slides/slides_spatioTemporal.html">
- <span class="dropdown-text">Slides 8 - Spatio-Temporal Models</span></a>
+ <span class="dropdown-text">Slides 9 - Spatio-Temporal Models</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./slides/slides_Model_Comparison.html">
- <span class="dropdown-text">Slides 9 - Model Comparison</span></a>
+ <span class="dropdown-text">Slides 10 - Model Comparison</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./slides/slides_multilik.html">
- <span class="dropdown-text">Slides 10 - Multiple Likelihoods Models</span></a>
+ <span class="dropdown-text">Slides 11 - Multiple Likelihoods Models</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./slides/slides_Closing_Remarks.html">
+ <span class="dropdown-text">Slides 12 - Closing Remarks</span></a>
   </li>  
     </ul>
   </li>
@@ -346,18 +354,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Time used:
-    Pre = 0.651, Running = 0.989, Post = 0.0605, Total = 1.7 
+    Pre = 0.706, Running = 3.83, Post = 0.0853, Total = 4.62 
 Fixed effects:
-             mean    sd 0.025quant 0.5quant 0.975quant  mode kld
-(Intercept) 9.799 0.098      9.606    9.799      9.993 9.799   0
+              mean    sd 0.025quant 0.5quant 0.975quant   mode kld
+(Intercept) 10.109 0.096      9.921   10.109     10.296 10.109   0
 
 Model hyperparameters:
                                         mean    sd 0.025quant 0.5quant
-Precision for the Gaussian observations 1.05 0.148      0.782     1.04
+Precision for the Gaussian observations 1.11 0.157      0.828     1.11
                                         0.975quant mode
-Precision for the Gaussian observations       1.36 1.03
+Precision for the Gaussian observations       1.44 1.09
 
-Marginal log-Likelihood:  -152.19 
+Marginal log-Likelihood:  -149.28 
  is computed 
 Posterior summaries for the linear predictor and the fitted values are computed
 (Posterior marginals needs also 'control.compute=list(return.marginals.predictor=TRUE)')</code></pre>
@@ -385,18 +393,18 @@ Observation models:
     Additive/Linear/Rowwise: TRUE/TRUE/TRUE
     Used components: effect[Intercept], latent[] 
 Time used:
-    Pre = 0.323, Running = 0.941, Post = 0.076, Total = 1.34 
+    Pre = 0.354, Running = 1.14, Post = 0.127, Total = 1.62 
 Fixed effects:
-           mean    sd 0.025quant 0.5quant 0.975quant  mode kld
-Intercept 9.799 0.098      9.606    9.799      9.992 9.799   0
+            mean    sd 0.025quant 0.5quant 0.975quant   mode kld
+Intercept 10.109 0.096      9.921   10.109     10.296 10.109   0
 
 Model hyperparameters:
                                         mean    sd 0.025quant 0.5quant
-Precision for the Gaussian observations 1.05 0.148      0.782     1.04
+Precision for the Gaussian observations 1.11 0.157      0.828     1.11
                                         0.975quant mode
-Precision for the Gaussian observations       1.36 1.03
+Precision for the Gaussian observations       1.44 1.09
 
-Marginal log-Likelihood:  -156.65 
+Marginal log-Likelihood:  -153.74 
  is computed 
 Posterior summaries for the linear predictor and the fitted values are computed
 (Posterior marginals needs also 'control.compute=list(return.marginals.predictor=TRUE)')</code></pre>

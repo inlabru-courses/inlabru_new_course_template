@@ -55,6 +55,13 @@ library(mapview)
 library(scico)
 ```
 
+```{r}
+#| echo: false
+#| purl: false
+mapviewOptions(basemaps = c("OpenStreetMap.DE","Esri.WorldImagery","OpenTopoMap"))
+
+```
+
 ### The data
 
 We consider data on respiratory hospitalizations for Greater Glasgow and Clyde in 2007. The data are available from the `CARBayesdata` R Package or by clicking on the link below:
@@ -117,15 +124,22 @@ Then we compute the adjacency matrix using the functions `poly2nb()` and `nb2mat
 ```{r}
 library(spdep)
 
-W.nb <- poly2nb(GGHB.IZ,queen = TRUE)
+W.nb <- poly2nb(GGHB.IZ,queen = TRUE,snap=35)
+W.nb
+
 R <- nb2mat(W.nb, style = "B", zero.policy = TRUE)
 
 diag = apply(R,1,sum)
 Q = -R
 diag(Q) = diag
+
+
+plot(st_geometry(GGHB.IZ), border = "lightgray")
+plot.nb(W.nb, st_geometry(GGHB.IZ), add = TRUE)
+
 ```
 
-###The model
+### The model
 
 We fit a first model to the data where we consider a Poisson model for the observed cases.
 
@@ -197,7 +211,7 @@ After fitting the model we want to extract results.
 
 1.  What is the estimated value for $\beta_0$? `r fitb(fit$summary.fixed[1], num = TRUE, tol = .001)`
 
-2.  Look at the estimated values of the hyperparameters using `fit$summary.hyperpar` , which of the two spatial components (structured or unstructured) explains more of the variability in the counts? `r mcq(c("structured", answer = "unstructured"))`
+2.  Look at the estimated values of the hyperparameters using `fit$summary.hyperpar` , which of the two spatial components (structured or unstructured) explains more of the variability in the counts? `r mcq(c("unstructured", answer = "structured"))`
 :::
 
 We now look at the predictions over space.
@@ -261,7 +275,7 @@ pred$cases %>% ggplot() + geom_point(aes(observed, mean)) +
 
 ### Getting prediction densities
 
-Posterior predictive distributions, i.e.\ $\pi(y_i^{\text{new}}|\mathbf{y})$, are of interest in many applied problems. The `bru()` function does not return predictive densities. In the previous step we have computed predictions for the `expected counts` $\pi(E_i\lambda_i|\mathbf{y})$. The predictive distribution is then: $$
+Posterior predictive distributions, i.e. $\pi(y_i^{\text{new}}|\mathbf{y})$, are of interest in many applied problems. The `bru()` function does not return predictive densities. In the previous step we have computed predictions for the `expected counts` $\pi(E_i\lambda_i|\mathbf{y})$. The predictive distribution is then: $$
 \pi(y_i^{\text{new}}|\mathbf{y}) = \int \pi(y_i|E_i\lambda_i)\pi(E_i\lambda_i|\mathbf{y})\ dE_i\lambda_i
 $$ where, in our case, $\pi(y_i|E_i\lambda_i)$ is Poisson with mean $E_i\lambda_i$. We can achieve this using the following algorithm:
 
@@ -272,7 +286,6 @@ $$ where, in our case, $\pi(y_i|E_i\lambda_i)$ is Poisson with mean $E_i\lambda_
 Here is the code:
 
 ```{r}
-
 # simulate 1000 realizations of E_i\lambda_i
 expected_counts = generate(fit, resp_cases, 
                            ~ expected * exp(Intercept + space),
@@ -283,14 +296,33 @@ expected_counts = generate(fit, resp_cases,
 aa = rpois(271*1000, lambda = as.vector(expected_counts))
 sim_counts = matrix(aa, 271, 1000)
 
+
 # summarise the samples with posterior means and quantiles
 pred_counts = data.frame(observed = resp_cases$observed,
-                         m = apply(sim_counts,1,mean),
-                         q1 = apply(sim_counts,1,quantile, 0.025),
-                         q2 = apply(sim_counts,1,quantile, 0.975),
-                         vv = apply(sim_counts,1,var)
+                         m = apply(expected_counts,1,mean),
+                         q1 = apply(expected_counts,1,quantile, 0.025),
+                         q2 = apply(expected_counts,1,quantile, 0.975),
+                         vv = apply(expected_counts,1,var)
                          )
 ```
+
+
+::: {.callout-note}
+
+An alternative and shorter version of the code above simulates the 1000 realizations from a Poisson distribution with mean $E_i\lambda_i$ by  drawing the Poisson samples directly within the `generate()` function:
+
+
+```{r}
+#| eval: false
+
+sim_counts =  generate(fit, resp_cases, 
+         formula = ~{ mean = expected * exp(Intercept + space)
+                      rpois(nrow(resp_cases), mean)},
+         n.samples = 1000)
+
+```
+
+:::
 
 ::: {.callout-warning icon="false"}
 ## {{< bi pencil-square color=#c8793c >}} Task
@@ -315,6 +347,23 @@ ggplot() +
 
 ```
 :::
+
+The `generate()` function can also be used to compute exceedance probabilities, i.e. the probability that the relative risk in an area exceeds a given threshold $c$, $P(\lambda_i > c)$ (e.g., $c = 1$)
+
+```{r}
+EP =  generate(fit, resp_cases, 
+         formula = ~{ lambda = exp(Intercept + space)
+                      lambda > 1},
+         n.samples = 1000)
+
+resp_cases$EP = apply(EP,1,mean)
+
+ggplot()+
+  geom_sf(data=resp_cases,(aes(fill=EP)))+
+  scale_fill_scico(name="exceedance \n probabilities",
+                   direction = -1)
+
+```
 
 ### Adding a spatial covariate
 

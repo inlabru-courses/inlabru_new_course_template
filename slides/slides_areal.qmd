@@ -76,7 +76,7 @@ library(inlabru)
 
 -   As with other types of spatial modelling, our goal is to observe and explain **spatial variation** in our data.
 
--   We are trying to understand and account for **spatial dependence**.
+-   Again, we are trying to understand and account for **spatial dependence**.
 
 -   Generally, we aim to produce a smoothed map that summarises the spatial patterns observed in our data.
 :::
@@ -97,9 +97,9 @@ An **areal process** (or lattice process) is a stochastic process defined on a s
 ## Neighbourhood structures
 
 ::: incremental
--   Each of our regions $B_i$ has a set of other regions nearby which can be considered **neighbours**
+-   Each of our regions $B_i$ has a set of other nearby which can be considered **neighbours**
 
--   We might expect that areas have more in common with their neighbours than with regions further away.
+-   We might expect that areas have more in common with their neighbours.
 
 -   Therefore, we can construct dependence structures based on the principle that neighbours are correlated and non-neighbours are uncorrelated.
 
@@ -160,7 +160,7 @@ Assume that regions which are a within a certain distance of each other area nei
 
 ## Binary Neighbourhood matrix
 
-The by far most common approach is to use a binary neighbourhood matrix, $W$, denoted by
+By far the most common approach is to use a binary neighbourhood matrix, $W$, denoted by
 
 $$
 \begin{aligned}
@@ -171,9 +171,9 @@ $$
 
 ::::: columns
 ::: {.column width="40%"}
--   Dependence structures are described through this spatial weights matrix
+-   Dependencies structures are described through this spatial weights matrix
 
--   Binary matrices are used for simplicity
+-   Binary matrices are used for their simplicity
 :::
 
 ::: {.column width="60%"}
@@ -181,274 +181,311 @@ $$
 :::
 :::::
 
-## How do we model this? {auto-animate="true"}
+## From the proximity matrix to spatially correlated models (ICAR model){.smaller}
 
-Imagine we have animal counts in each region. We can model them as Poisson counts
+Starting from the proximity matrix we can build a GMRF $\mathbf{u}$ that accounts for spatial correlation:
+$$
+\mathbf{u}|\tau\sim\mathcal{N}(0,\mathbf{Q})
+$$
+with 
 
 $$
-y_i \sim \mathrm{Poisson}(e^{\eta_i})
-$$ How do we model the linear predictor $\eta_i$?
-
-::: {.fragment .fade-in}
--   We could model the number of animals in each region independently
-
-$$
- \eta_i = \beta_0 + \mathbf{x}'\beta + u_i ~~~ u_i \overset{iid}{\sim} N(0,\sigma^2_i)
+\mathbf{Q} = \tau(\mathbf{D} - \mathbf{W}), 
 $$
 
--   regional differences are accounted for through a *random effect*
-:::
+where $\mathbf{D} = \{d_1,\dots,d_n\}$ and $d_i = \sum_{j = 1}^nw_{ij}$ (number of neighbours of node $i$)
 
-## How do we model this? { auto-animate="true"}
-
-Imagine we have animal counts in each region. We can model them as Poisson counts
-
-$$
-y_i \sim \mathrm{Poisson}(e^{\eta_i})
-$$ How do we model the linear predictor $\eta_i$?
-
-::: {.fragment .fade-in}
--   But... what if the distribution varies across space following a trend, i.e.\ is structured in space?
--   Do the covariates account for those structures?
--   If there’s an area where the animal is rare, we’ll get lots of zero counts...
-:::
-
-## How do we model this? { auto-animate="true"}
-
-Imagine we have animal counts in each region. We can model them as Poisson counts.
-
-$$
-y_i \sim \mathrm{Poisson}(e^{\eta_i})
-$$ How do we model the linear predictor $\eta_i$?
-
-::: {.fragment .fade-in}
--   We could model some dependence across regions:
-    -   *Nearby regions* should have similar counts
-
-$$
-\eta_i = \beta_0 + \mathbf{x}'\beta + u_i ~~~ u_i \overset{iid}{\sim} N(0,\Sigma)
-$$
-
--   Now the random effect $u_i \sim N(0, \Sigma)$ is correlated.
-:::
-
-::: {.fragment .fade-in}
--   How do we do this?
-:::
-
-## Sparse Matrixes {auto-animate=true}
-
-$$
-\mathcal{u}\sim\mathcal{N}(0,\Sigma)
-$$
-
-1.  Force the *covariance* matrix $\Sigma$ to be sparse
-
-2.  Force the *precision* matrix $\Sigma^{-1}$ to be sparse
-
-## Sparse Matrixes {auto-animate=true}
-
-$$
-\mathcal{u}\sim\mathcal{N}(0,\Sigma)
-$$
-
-1.  Force the *covariance* matrix $\Sigma$ to be sparse
-
-    -   $\Sigma_{ij} = \text{Cov}(u_i, u_j)$ : Covariance between $u_i$ and $u_j$
-    -   $\Sigma_{ij} = 0$ $\longrightarrow$ $u_i$ and $u_j$ are *independent*
-    -   A sparse covariance matrix implies that many elements of $\mathbf{u}$ are mutually independent.....is this desirable?
-
-2.  Force the *precision* matrix $\mathbf{Q} = \Sigma^{-1}$ to be sparse
-
-## Sparse Matrixes {auto-animate=true}
-
-$$
-\mathcal{u}\sim\mathcal{N}(0,\Sigma)
-$$
-
-1.  Force the *covariance* matrix $\Sigma$ to be sparse
-
-    -   $\Sigma_{ij} = \text{Cov}(u_i, u_j)$ : Covariance between $u_i$ and $u_j$
-    -   $\Sigma_{ij} = 0$ $\longrightarrow$ $u_i$ and $u_j$ are *independent*
-    -   A sparse covariance matrix implies that many elements of $\mathbf{u}$ are mutually independent.....is this desirable?
-
-2.  Force the *precision* matrix $\mathbf{Q} = \Sigma^{-1}$ to be sparse
-
-    -   What does $Q_{ij}$ represent?
-    -   What does a sparse precision matrix imply?
-    
-    
-# Gaussian Markov Random Fields  {background-image="figures/areal_img.jpg"}
-
-
-## Recall: The AR(1) proces
-
-**Definition**
-
-$$
-\begin{aligned}
-\mathbf{i=1}&:  x_1 \sim N\left(0, \frac{1}{1-\phi^2}\right)\\
-\mathbf{i=2,\dots,T}&:  x_i  = \phi\  x_{i-1} +\epsilon_i,\ \epsilon_i\sim\mathcal{N}(0,1)
-\end{aligned}
-$$
-
--   Very common to model dependence in time.
--   The *joint* distribution of $\mathbf{x}=x_1,x_2,\dots$ is Gaussian.
--   What do covariance and precision matrices look like?
-
-## Covariance and Precision Matrix for AR1 {auto-animate="true" background-color="#FFFFFF"}
-
-::: {style="height: 50px;"}
-:::
-
-::::: columns
-::: {.column .smaller width="50%"}
-**Covariance Matrix**
-
-
-::::: {style="font-size: 0.7em;"}
-$$
-\Sigma = \frac{1}{1-\phi^2}  \begin{bmatrix}
-1& \phi & \phi^2  & \dots& \phi^N \\
-\phi & 1& \phi  & \dots& \phi^{N-1} \\
-\phi^2 & \phi & 1 & \dots& \phi^{N-2} \\
-\dots& \dots& \dots& \dots& \dots& \\
-\phi^{N} & \phi^{N-1}& \phi^{N-2}  & \dots& 1\\
-\end{bmatrix}
-$$
-::::: 
-
--   This is a *dense* matrix.
-
--   All elements of the $\mathbf{x}$ vector are *dependent*.
-:::
-
-::: {.column width="50%"}
-```{r, echo = F, eval = T}
-#| fig-width: 8
-#| fig-height: 8
-phi = 0.8
-x = 0:15
-cx = (1-phi^2)^(-1)*phi^x
-
-data.frame(lag = x, cov = cx) %>%
-  ggplot() + geom_point(aes(lag, cov)) +
-  ggtitle(expression("Covariance between "~u[i]~u[i+h])) +
-  xlab("h") + ylab("") + ylim(0,(1-phi^2)^(-1)) +
-   theme(title = element_text(size = 18),
-        axis.text.x = element_text(size = 16),
-        axis.text.y = element_text(size = 16)) 
-```
-:::
-:::::
-
-## Covariance and Precision Matrix for AR1 {.smaller auto-animate="true"}
-
-::: {style="height: 50px;"}
-:::
-
-**Precision Matrix**
-
-$$
-\mathbf{Q} = \Sigma^{-1} =  \begin{bmatrix}
-1& -\phi & 0  & 0 &\dots& 0 \\
--\phi & 1 + \phi^2& -\phi  & 0 & \dots& 0 \\
-0 & -\phi & 1-\phi^2 &-\phi &  \dots& 0 \\
-0 & 0 & -\phi &1-\phi^2 & \dots & \dots \\
-\dots& \dots& \dots& \dots& \dots& \dots& \\
-0 &0 & 0 & \dots  & -\phi& 1\\
-\end{bmatrix}
-$$
-
--   This is a tridiagonal matrix, it is *sparse*.
-
--   The tridiagonal form of $\mathbf{Q}$ can be exploited for quick calculations.
+What does this imply?
 
 . . .
 
-What is the key property of this example that causes $\mathbf{Q}$ to be sparse?
+**Conditional marginal**
 
-
-
-## Conditional independence {background-color="#FFFFFF"}
-
-::::: {style="font-size: 0.85em;"}
-The key lies in the **full conditionals**
 
 $$
-x_t|\mathbf{x}_{-t}\sim\mathcal{N}\left(\frac{\phi}{1-\phi^2}(x_{t-1}+x_{t+1}), \frac{1}{1+\phi^2}\right)
+u_i∣\mathbf{u}_{−i},\tau\sim\mathcal{N}\left(\frac{\sum_{j = 1}^n w_{ij}u_j}{d_i},\frac{1}{d_j\tau}\right),
 $$
 
-::: fragment
-![](figures/ar1.png){fig-align="center" width="709"}
+The expected  value for  each node is average of it's neighbours
 
-:::{.incremental}
--   The circles represent the values of $x$ at individual time points
+The more neighbours, the less variance
 
--   There is a line between them if they are conditionally dependent
+**NOTE** The Besag model is intrinsic (same as the RW1) and has rank deficiency 1
 
--   Each point in time is only **conditionally dependent** on the two closest neighbours
 
--   The nonzero pattern in the precision matrix is given by the neighborhood structure of the process
-:::
 
-:::
-::::: 
 
-## Conditional autoregressive models {.smaller background-color="#FFFFFF"}
 
-:::::: columns
-::: {.column width="50%"}
-**Markov in Space:**
 
-First order conditional autoregressive model or a CAR(1) model.
 
--   Every node is conditionally dependent on its four nearest neighbours
+<!-- ## How do we model this? {auto-animate="true"} -->
 
-![](figures/markov.png){fig-align="center" width="293"}
-:::
+<!-- Imagine we have animal counts in each region. We can model them as Poisson -->
 
-:::: {.column width="50%"}
-::: incremental
--   Models based on neighbourhood have a name in statistics: they are **Markovian models**
+<!-- $$ -->
+<!-- y_i \sim \mathrm{Poisson}(e^{\eta_i}) -->
+<!-- $$ How do we model the linear predictor $\eta_i$? -->
 
--   Markovian models are specified entirely through "*neighbourhood structures*"
+<!-- ::: {.fragment .fade-in} -->
+<!-- -   We could model the number of animals in each region independently -->
 
--   Recall our first Model:
+<!-- $$ -->
+<!--  \eta_i = \beta_0 + \mathbf{x}'\beta + u_i ~~~ u_i \overset{iid}{\sim} N(0,\sigma^2_i) -->
+<!-- $$ -->
 
-    $$
-    \begin{aligned}
-    y_i &\sim \mathrm{Poisson}(e^{\eta_i}) \\
-    \eta_i &= \beta_0 + \mathbf{x}'\beta + u_i ~~~ u_i \sim N(0,Q^{-1})
-    \end{aligned}
-    $$
+<!-- -   regional differences are accounted for through a *random effect* -->
+<!-- ::: -->
 
--   This mean $u_i$ is independent of all the other parameters $\mathbf{u}_{-i}$, given the set of its neighbors.
+<!-- ## How do we model this? { auto-animate="true"} -->
 
--   for any pair of elements ($i,j$) in $\mathbf{u}$, $u_i\perp u_j|\mathbf{u}_{-ij}\Longleftrightarrow Q{ij} =0$
+<!-- Imagine we have animal counts in each region. We can model them as Poisson -->
 
--   $Q{ij} \neq 0$ only if $j\in \{i,\mathcal{N}(i)\}$
-:::
-::::
-::::::
+<!-- $$ -->
+<!-- y_i \sim \mathrm{Poisson}(e^{\eta_i}) -->
+<!-- $$ How do we model the linear predictor $\eta_i$? -->
 
-## (Informal) definition of a GMRF
+<!-- ::: {.fragment .fade-in} -->
+<!-- -   But... what if the distribution varies across space, i.e. is structured in space? -->
+<!-- -   Do the covariates account for those structures? -->
+<!-- -   If there’s an area where the animal is rare, we’ll get lots of zero counts -->
+<!-- ::: -->
 
-Gauss Markov random field (GMRF) is
+<!-- ## How do we model this? { auto-animate="true"} -->
 
-::: incremental
--   a Gaussian distribution where the non-zero elements of the precision matrix are defined by a neighbourhood matrix (or graph structure)
--   each region conditionally has a Gaussian distribution with
--   mean equal to the average of the neighbours and
--   precision proportional to the number of neighbours
-:::
+<!-- Imagine we have animal counts in each region. We can model them as Poisson -->
 
-GMRFs are key to the many inferential approaches:
+<!-- $$ -->
+<!-- y_i \sim \mathrm{Poisson}(e^{\eta_i}) -->
+<!-- $$ How do we model the linear predictor $\eta_i$? -->
 
-::: incremental
--   computationally efficient
--   other data structures can be approximated by a GMRF in a clever way
-:::
+<!-- ::: {.fragment .fade-in} -->
+<!-- -   We could model some dependence across regions: -->
+<!--     -   *Nearby regions* should have similar counts -->
+
+<!-- $$ -->
+<!-- \eta_i = \beta_0 + \mathbf{x}'\beta + u_i ~~~ u_i \overset{iid}{\sim} N(0,\Sigma) -->
+<!-- $$ -->
+
+<!-- -   Now the random effect $u_i \sim N(0, \Sigma)$ is correlated. -->
+<!-- ::: -->
+
+<!-- ::: {.fragment .fade-in} -->
+<!-- -   How do we do this? -->
+<!-- ::: -->
+
+<!-- ## Sparse Matrixes {auto-animate=true} -->
+
+<!-- $$ -->
+<!-- \mathcal{u}\sim\mathcal{N}(0,\Sigma) -->
+<!-- $$ -->
+
+<!-- 1.  Force the *covariance* matrix $\Sigma$ to be sparse -->
+
+<!-- 2.  Force the *precision* matrix $\Sigma^{-1}$ to be sparse -->
+
+<!-- ## Sparse Matrixes {auto-animate=true} -->
+
+<!-- $$ -->
+<!-- \mathcal{u}\sim\mathcal{N}(0,\Sigma) -->
+<!-- $$ -->
+
+<!-- 1.  Force the *covariance* matrix $\Sigma$ to be sparse -->
+
+<!--     -   $\Sigma_{ij} = \text{Cov}(u_i, u_j)$ : Covariance between $u_i$ and $u_j$ -->
+<!--     -   $\Sigma_{ij} = 0$ $\longrightarrow$ $u_i$ and $u_j$ are *independent* -->
+<!--     -   A sparse covariance matrix implies that many elements of $\mathbf{u}$ are mutually independent.....is this desirable? -->
+
+<!-- 2.  Force the *precision* matrix $\mathbf{Q} = \Sigma^{-1}$ to be sparse -->
+
+<!-- ## Sparse Matrixes {auto-animate=true} -->
+
+<!-- $$ -->
+<!-- \mathcal{u}\sim\mathcal{N}(0,\Sigma) -->
+<!-- $$ -->
+
+<!-- 1.  Force the *covariance* matrix $\Sigma$ to be sparse -->
+
+<!--     -   $\Sigma_{ij} = \text{Cov}(u_i, u_j)$ : Covariance between $u_i$ and $u_j$ -->
+<!--     -   $\Sigma_{ij} = 0$ $\longrightarrow$ $u_i$ and $u_j$ are *independent* -->
+<!--     -   A sparse covariance matrix implies that many elements of $\mathbf{u}$ are mutually independent.....is this desirable? -->
+
+<!-- 2.  Force the *precision* matrix $\mathbf{Q} = \Sigma^{-1}$ to be sparse -->
+
+<!--     -   What does $Q_{ij}$ represents? -->
+<!--     -   What does a sparse precision matrix implies? -->
+
+
+<!-- # Gaussian Markov Random Fields  {background-image="figures/areal_img.jpg"} -->
+
+
+<!-- ## Recall: The AR(1) proces -->
+
+<!-- **Definition** -->
+
+<!-- $$ -->
+<!-- \begin{aligned} -->
+<!-- \mathbf{i=1}&:  x_1 \sim N\left(0, \frac{1}{1-\phi^2}\right)\\ -->
+<!-- \mathbf{i=2,\dots,T}&:  x_i  = \phi\  x_{i-1} +\epsilon_i,\ \epsilon_i\sim\mathcal{N}(0,1) -->
+<!-- \end{aligned} -->
+<!-- $$ -->
+
+<!-- -   Very common to model dependence in time -->
+<!-- -   The *joint* distribution of $\mathbf{x}=x_1,x_2,\dots$ is Gaussian -->
+<!-- -   How do covariance and precision matrices look? -->
+
+<!-- ## Covariance and Precision Matrix for AR1 {auto-animate="true" background-color="#FFFFFF"} -->
+
+<!-- ::: {style="height: 50px;"} -->
+<!-- ::: -->
+
+<!-- ::::: columns -->
+<!-- ::: {.column .smaller width="50%"} -->
+<!-- **Covariance Matrix** -->
+
+
+<!-- ::::: {style="font-size: 0.7em;"} -->
+<!-- $$ -->
+<!-- \Sigma = \frac{1}{1-\phi^2}  \begin{bmatrix} -->
+<!-- 1& \phi & \phi^2  & \dots& \phi^N \\ -->
+<!-- \phi & 1& \phi  & \dots& \phi^{N-1} \\ -->
+<!-- \phi^2 & \phi & 1 & \dots& \phi^{N-2} \\ -->
+<!-- \dots& \dots& \dots& \dots& \dots& \\ -->
+<!-- \phi^{N} & \phi^{N-1}& \phi^{N-2}  & \dots& 1\\ -->
+<!-- \end{bmatrix} -->
+<!-- $$ -->
+<!-- :::::  -->
+
+<!-- -   This is a *dense* matrix. -->
+
+<!-- -   All elements of the $\mathbf{x}$ vector are *dependent*. -->
+<!-- ::: -->
+
+<!-- ::: {.column width="50%"} -->
+<!-- ```{r, echo = F, eval = T} -->
+<!-- #| fig-width: 8 -->
+<!-- #| fig-height: 8 -->
+<!-- phi = 0.8 -->
+<!-- x = 0:15 -->
+<!-- cx = (1-phi^2)^(-1)*phi^x -->
+
+<!-- data.frame(lag = x, cov = cx) %>% -->
+<!--   ggplot() + geom_point(aes(lag, cov)) + -->
+<!--   ggtitle(expression("Covariance between "~u[i]~u[i+h])) + -->
+<!--   xlab("h") + ylab("") + ylim(0,(1-phi^2)^(-1)) + -->
+<!--    theme(title = element_text(size = 18), -->
+<!--         axis.text.x = element_text(size = 16), -->
+<!--         axis.text.y = element_text(size = 16))  -->
+<!-- ``` -->
+<!-- ::: -->
+<!-- ::::: -->
+
+<!-- ## Covariance and Precision Matrix for AR1 {.smaller auto-animate="true"} -->
+
+<!-- ::: {style="height: 50px;"} -->
+<!-- ::: -->
+
+<!-- **Precision Matrix** -->
+
+<!-- $$ -->
+<!-- \mathbf{Q} = \Sigma^{-1} =  \begin{bmatrix} -->
+<!-- 1& -\phi & 0  & 0 &\dots& 0 \\ -->
+<!-- -\phi & 1 + \phi^2& -\phi  & 0 & \dots& 0 \\ -->
+<!-- 0 & -\phi & 1-\phi^2 &-\phi &  \dots& 0 \\ -->
+<!-- 0 & 0 & -\phi &1-\phi^2 & \dots & \dots \\ -->
+<!-- \dots& \dots& \dots& \dots& \dots& \dots& \\ -->
+<!-- 0 &0 & 0 & \dots  & -\phi& 1\\ -->
+<!-- \end{bmatrix} -->
+<!-- $$ -->
+
+<!-- -   This is a tridiagonal matrix, it is *sparse* -->
+
+<!-- -   The tridiagonal form of $\mathbf{Q}$ can be exploited for quick calculations. -->
+
+<!-- . . . -->
+
+<!-- What is the key property of this example that causes $\mathbf{Q}$ to be sparse? -->
+
+
+
+<!-- ## Conditional independence {background-color="#FFFFFF"} -->
+
+<!-- ::::: {style="font-size: 0.85em;"} -->
+<!-- The key lies in the **full conditionals** -->
+
+<!-- $$ -->
+<!-- x_t|\mathbf{x}_{-t}\sim\mathcal{N}\left(\frac{\phi}{1-\phi^2}(x_{t-1}+x_{t+1}), \frac{1}{1+\phi^2}\right) -->
+<!-- $$ -->
+
+<!-- ::: fragment -->
+<!-- ![](figures/ar1.png){fig-align="center" width="709"} -->
+
+<!-- :::{.incremental} -->
+<!-- -   The circles represent the values of $x$ at individual time points -->
+
+<!-- -   There is a line between them if they are conditionally dependent -->
+
+<!-- -   Each timepoint is only **conditionally dependent** on the two closest neighbours -->
+
+<!-- -   The nonzero pattern in the precision matrix is given by the neighborhood structure of the process -->
+<!-- ::: -->
+
+<!-- ::: -->
+<!-- :::::  -->
+
+<!-- ## Conditional autoregressive models {.smaller background-color="#FFFFFF"} -->
+
+<!-- :::::: columns -->
+<!-- ::: {.column width="50%"} -->
+<!-- **Markov in Space:** -->
+
+<!-- First order conditional autoregressive model or a CAR(1) model. -->
+
+<!-- -   Every node is conditionally dependent on its four nearest neighbours -->
+
+<!-- ![](figures/markov.png){fig-align="center" width="293"} -->
+<!-- ::: -->
+
+<!-- :::: {.column width="50%"} -->
+<!-- ::: incremental -->
+<!-- -   Models based on neighbourhood have a name in statistics: they are **Markovian models** -->
+
+<!-- -   Markovian models are specified entirely through "*neighbourhood structures*" -->
+
+<!-- -   Recall our first Model: -->
+
+<!--     $$ -->
+<!--     \begin{aligned} -->
+<!--     y_i &\sim \mathrm{Poisson}(e^{\eta_i}) \\ -->
+<!--     \eta_i &= \beta_0 + \mathbf{x}'\beta + u_i ~~~ u_i \sim N(0,Q^{-1}) -->
+<!--     \end{aligned} -->
+<!--     $$ -->
+
+<!-- -   This mean $u_i$ is independent of all the other parameters $\mathbf{u}_{-i}$, given the set of its neighbors. -->
+
+<!-- -   for any pair of elements ($i,j$) in $\mathbf{u}$, $u_i\perp u_j|\mathbf{u}_{-ij}\Longleftrightarrow Q{ij} =0$ -->
+
+<!-- -   $Q{ij} \neq 0$ only if $j\in \{i,\mathcal{N}(i)\}$ -->
+<!-- ::: -->
+<!-- :::: -->
+<!-- :::::: -->
+
+<!-- ## (Informal) definition of a GMRF -->
+
+<!-- Gauss Markov random field (GMRF) is -->
+
+<!-- ::: incremental -->
+<!-- -   a Gaussian distribution where the non-zero elements of the precision matrix are defined by a neighbourhood matrix (or graph structure) -->
+<!-- -   each region conditionally has a Gaussian distribution with -->
+<!-- -   mean equal to the average of the neighbours and -->
+<!-- -   precision proportional to the number of neighbours -->
+<!-- ::: -->
+
+<!-- GMRFs are key to the many inferential approaches: -->
+
+<!-- ::: incremental -->
+<!-- -   computationally efficient -->
+<!-- -   other data structures can be approximated by a GMRF in a clever way -->
+<!-- ::: -->
 
 <!-- ## Formal definition of a GMRF  -->
 
@@ -468,7 +505,7 @@ GMRFs are key to the many inferential approaches:
 <!-- ::: {.callout-note icon="false"} -->
 <!-- ## Definition -->
 
-<!-- A random variable $\mathbf{u}$ is said to be a GMRF wrt.\ to the graph $\mathcal{G}$ with vertices $\{1, 2,\dots , n\}$ and edges $\mathcal{E}$, with mean $\mu$ and precision matrix $\mathbf{Q}$ if its probability distribution is given by -->
+<!-- A random variable $\mathbf{u}$ is said to be a GMRF wrt to the graph $\mathcal{G}$ with vertices $\{1, 2,\dots , n\}$ and edges $\mathcal{E}$ , with mean $\mu$ and precision matrix $\mathbf{Q}$ if its probability distribution is given by -->
 
 <!-- $$ -->
 <!-- \mathbf{u} \sim N(\mu,Q^{-1}) -->
@@ -483,7 +520,7 @@ GMRFs are key to the many inferential approaches:
 ::: {style="height: 50px;"}
 :::
 
-An example of a GMRF is the Besag model a.k.a.\ the Intrinsic Conditional Autoregressive (ICAR) model. The conditional distribution for $u_i$ is
+An example of a GMRF is the the Besag model a.k.a. Intrinsic Conditional Autoregressive (ICAR) model. The conditional distribution for $u_i$ is
 
 $$
 u_i|\mathbf{u}_{-i},\tau_u, \sim N\left(\frac{1}{d_i}\sum_{j\sim i}u_j,\frac{1}{d_i\tau_u}\right)
@@ -496,7 +533,7 @@ $$
 
 -   $d_i$ is the number of neighbours
 
--   The mean of $u_i$ is equivalent to the mean of the effects over all neighbours, and the precision is proportional to the number of neighbours (e.g., if an area has many neighbours then its variance will be smaller)
+-   The mean of $u_i$ is equivalent to the the mean of the effects over all neighbours, and the precision is proportional to the number of neighbours (e.g., if an area has many neighbors then its variance will be smaller)
 :::
 
 ## Modelling spatial similarity {.smaller}
@@ -510,7 +547,7 @@ $$
 \mathbf{u}|\tau_u \sim N\left(0,\frac{1}{\tau_u}Q^{-1}\right),
 $$
 
-where $Q$ denotes the precision matrix defined as
+Where $Q$ denotes the precision matrix defined as
 
 $$
 Q_{i,j} = \begin{cases}
@@ -524,25 +561,25 @@ This structure matrix directly defines the neighbourhood structure and is sparse
 
 
 
-## What does it look like? {auto-animate="true"}
+## How does it looks? {auto-animate="true"}
 
 Larynx cancer relative risk map
 
 ![](figures/mp1.png){fig-align="center" width="423"}
 
-## What does it look like? {auto-animate="true"}
+## How does it looks? {auto-animate="true"}
 
-Connecting all the neighbouring areas yields the following graph
+Connecting all the neighbouring areas give the following graph
 
 ![](figures/mp2.png){fig-align="center"}
 
-## What does it look like? {auto-animate="true"}
+## How does it looks? {auto-animate="true"}
 
 -   Let us focus on one small part of the graph
 
 ![](figures/mp3.png){fig-align="center"}
 
-## What does it look like? {.smaller auto-animate="true"}
+## How does it looks? {.smaller auto-animate="true"}
 
 -   We apply an ICAR model where each region conditionally has a Gaussian distribution with mean equal to the average of the neighbours and a precision proportional to the number of neighbour
 
@@ -552,13 +589,13 @@ Connecting all the neighbouring areas yields the following graph
 
 ![](figures/mp4.png){fig-align="center"}
 
-## What does it look like? {auto-animate="true"}
+## How does it looks? {auto-animate="true"}
 
 The sub graph leads to a precision matrix with 21.6% non-zero elements.
 
 ![](figures/prec_1.png){fig-align="center"}
 
-## What does it look like? {auto-animate="true"}
+## How does it looks like? {auto-animate="true"}
 
 The full graph leads to a precision matrix with 0.1% non-zero elements.
 
@@ -573,19 +610,42 @@ The full graph leads to a precision matrix with 0.1% non-zero elements.
 The ICAR model accounts only for spatially structured variability and does not include a limiting case where no spatial structure is present.
 
 ::: incremental
--   We typically add an unstructured random effect $z_i|\tau_z \sim N(0,\tau_{z}^{-1})$ to account for region-specific differences.
+-   We typically add an unstructured random effect $z_i|\tau_z \sim N(0,\tau_{z}^{-1})$
 
 -   The resulting model $v_i = u_i + z_i$ is known as the Besag-York-Mollié model (BYM)
 
--   The structured spatial effect is controlled by $\tau_u$ which controls the degree of smoothing:
+-   The structured spatial effect is controlled by $\tau_u$ which control the degree of smoothing:
 
     -   Higher $\tau_u$ values lead to stronger smoothing (less spatial variability).
 
     -   Lower $\tau_u$ values allow for greater local variation.
 
--   In the following example we will illustrate how to fit this model using `inlabru`.
+-   In the next example we will illustrate how to fit this model using `inlabru`.
 :::
 
+:::
+
+
+## BYM model - A note on the smoothing parameter
+
+1. **Important** The smootheness of the  GMRF 
+$$
+\mathbf{u}|\tau\sim\mathcal{N}(0,\mathbf{Q}), \qquad Q =  \tau(\mathbf{D} - \mathbf{W})
+$$
+depends on:
+
+  - The smoothing parameter $\tau$ **AND**
+  - The neighbouring structure of the precision matrix $\mathbf{Q}$
+  
+To compare smoothness we need to *scale* the model (this is **NOT** done by default in the definition of the `besag` model in `inlabru`)
+
+
+::: {.fragment fragment-index=2}
+2. For disconnected graphs (or graphs with islands) some care is needed when defining the sum-to-zero constraints
+:::
+
+::: {.absolute bottom=10 left=0 .fragment fragment-index=2 style="font-size: 60%;"}
+See [this paper](https://www.sciencedirect.com/science/article/pii/S1877584517301600) where the problem is discussed!
 :::
 
 <!-- ## Reminder: Latent Gaussian Models (LGMs) -->
@@ -707,7 +767,7 @@ $$
 
 ```{r}
 #| echo: true
-#| eval: false
+#| eval: true
 #| warning: false
 #| message: false
 #| code-line-numbers: "1-4"
@@ -715,7 +775,7 @@ $$
 # define model component
 cmp = ~ Intercept(1) +  pm10(pm10, model = "linear") +
   ui(region_id, model = "besag", graph = Q) + 
-  zi(region_id, model = "iid") 
+  vi(region_id, model = "iid") 
 
 # define model predictor
 eta =  observed ~ Intercept + ui + vi + pm10
@@ -727,7 +787,7 @@ lik = bru_obs(formula = eta,
               data = resp_cases)
 
 # fit the model
-fit = bru(cmp, lik)
+fit1 = bru(cmp, lik)
 
 
 ```
@@ -743,6 +803,10 @@ fit = bru(cmp, lik)
 #| eval: false
 library(spdep)
 W.nb <- poly2nb(GGHB.IZ,queen = TRUE)
+R <- nb2mat(W.nb, style = "B", zero.policy = TRUE)
+diag = apply(R,1,sum)
+Q = -R
+diag(Q) = diag
 ```
 
 ```{r}
@@ -792,7 +856,7 @@ lik = bru_obs(formula = eta,
               data = resp_cases)
 
 # fit the model
-fit = bru(cmp, lik)
+fit1 = bru(cmp, lik)
 
 
 ```
@@ -808,6 +872,10 @@ fit = bru(cmp, lik)
 #| eval: false
 library(spdep)
 W.nb <- poly2nb(GGHB.IZ,queen = TRUE)
+R <- nb2mat(W.nb, style = "B", zero.policy = TRUE)
+diag = apply(R,1,sum)
+Q = -R
+diag(Q) = diag
 ```
 
 ```{r}
@@ -857,7 +925,7 @@ lik = bru_obs(formula = eta,
               data = resp_cases)
 
 # fit the model
-fit = bru(cmp, lik)
+fit1 = bru(cmp, lik)
 
 
 ```
@@ -873,6 +941,10 @@ fit = bru(cmp, lik)
 #| eval: false
 library(spdep)
 W.nb <- poly2nb(GGHB.IZ,queen = TRUE)
+R <- nb2mat(W.nb, style = "B", zero.policy = TRUE)
+diag = apply(R,1,sum)
+Q = -R
+diag(Q) = diag
 ```
 
 ```{r}
@@ -922,7 +994,7 @@ lik = bru_obs(formula = eta,
               data = resp_cases)
 
 # fit the model
-fit = bru(cmp, lik)
+fit1 = bru(cmp, lik)
 
 
 ```
@@ -938,6 +1010,10 @@ fit = bru(cmp, lik)
 #| eval: false
 library(spdep)
 W.nb <- poly2nb(GGHB.IZ,queen = TRUE)
+R <- nb2mat(W.nb, style = "B", zero.policy = TRUE)
+diag = apply(R,1,sum)
+Q = -R
+diag(Q) = diag
 ```
 
 ```{r}
@@ -967,7 +1043,7 @@ lik = bru_obs(formula = formula,
               E = expected,
               data = resp_cases)
 
-fit = bru(cmp, lik)
+fit1 = bru(cmp, lik)
 ```
 
 ::::: columns
@@ -981,10 +1057,10 @@ fit = bru(cmp, lik)
 
 library(gt)
 
-rbind(fit$summary.fixed[,c(1,3,5)] ,
-fit$summary.hyperpar[,c(1,3,5)] )%>%
-  mutate(par = c(rownames(fit$summary.fixed),
-                 rownames(fit$summary.hyperpar))) %>%
+rbind(fit1$summary.fixed[,c(1,3,5)] ,
+fit1$summary.hyperpar[,c(1,3,5)] )%>%
+  mutate(par = c(rownames(fit1$summary.fixed),
+                 rownames(fit1$summary.hyperpar))) %>%
   gt(rowname_col = "par") %>% gt::fmt_number(decimals = 2)
 ```
 
@@ -997,7 +1073,7 @@ fit$summary.hyperpar[,c(1,3,5)] )%>%
 ```{r}
 #| eval: false
 #| echo: true
-pred = predict(fit, resp_cases,
+pred = predict(fit1, resp_cases,
  ~data.frame(
  log_risk = Intercept + ui + vi + pm10,
  risk = exp(Intercept + ui + vi+  pm10)),
@@ -1021,9 +1097,7 @@ pred = predict(fit, resp_cases,
 
 In the original BYM, the spatially structured component must be scaled so that $\tau_u$ produces consistent smoothness across different neighborhood structures.
 
-Riebler *et al*. ([2016](https://journals.sagepub.com/doi/10.1177/0962280216660421)) proposed a new parametrization of the BYM model based on PC-priors that improves parameter interpretability.
-
-<!-- Simpson *et al*. ([2017](https://projecteuclid.org/journals/statistical-science/volume-32/issue-1/Penalising-Model-Component-Complexity--A-Principled-Practical-Approach-to/10.1214/16-STS576.full)) proposed a new parametrization of the BYM model that improves parameter interpretability. -->
+Simpson *et al*. ([2017](https://projecteuclid.org/journals/statistical-science/volume-32/issue-1/Penalising-Model-Component-Complexity--A-Principled-Practical-Approach-to/10.1214/16-STS576.full)) proposed a new parametrization of the BYM model that improves parameter interpretability.
 
 $$
     \mathbf{b} = \dfrac{1}{\sqrt{\tau_b}} \left(\sqrt{1-\phi}v^*+\sqrt{\phi}u^*\right).
@@ -1045,18 +1119,18 @@ $$
 :::
 
 :::{.notes}
-The problem is that the data only ever inform the sum $u_i + v_i$, never the two pieces separately. 
+The problem is that the data only ever inform the sum $u_i + v_i$ never the two pieces separately. 
 
 - For a single area you have one observation (or one likelihood contribution) but two latent variables to split it into.
 
 - Any observed $\eta_i = u_i + v_i$ can be explained by infinitely many combinations of $u_i$ and $v_i$ that add to the same value
 
-- The two components are not individually identifiable from the likelihood —- only their sum is.
+- The two components are not individually identifiable from the likelihood — only their sum is.
 :::
 
 ## BYM2 & PC priors {.smaller auto-animate=true}
 
-The BYM2 model allows the specification of Penalized Complexity (PC) priors to control the amount of spatial smoothing and to avoid overfitting.
+The BYM2 model allows the specification of Penalized Complexity (PC) priors to control the amount of spatial smoothing and avoid overfitting.
 
 -   PC priors shrink the model towards a simpler baseline unless the data provide strong evidence for a more complex structure.
 -   To define the prior for the marginal precision $\tau_b$ and the mixing parameter $\phi$, we use the probability statements:
@@ -1064,7 +1138,7 @@ The BYM2 model allows the specification of Penalized Complexity (PC) priors to c
 ::: {.fragment .current-only data-fragment-index="1"}
 $$
 \begin{aligned}
-P(1/\sqrt{\tau_b} > U) &= \alpha\\
+P(1/\sqrt{\tau_b} > U) &= P(\sigma_{\tau_b} > U) = \alpha\\
 P(\phi < U) &= \alpha
 \end{aligned}
 $$
@@ -1073,8 +1147,8 @@ $$
 ::: {.fragment .current-only data-fragment-index="2"}
 $$
 \begin{aligned}
-P((1/\sqrt{\tau_b}) > 0.5/0.31) &\equiv  P(\sigma > 1.61) = 0.01\\
-P(\phi < 0.5) &= 2/3 \approx 0.66
+P(\sigma_{\tau_b} > 0.5) &\equiv  P(\sigma > 0.5) = 0.01\\
+P(\phi < 0.5) &= 0.5
 \end{aligned}
 $$
 :::
@@ -1102,26 +1176,140 @@ The BYM2 model allows the specification of Penalized Complexity (PC) priors to c
 #| echo: true
 # define model component
 cmp = ~ Intercept(1) +  pm10(pm10, model = "linear") +
-  b(region_id, model = "bym2", graph = Q,
+  space(region_id, model = "bym2", graph = Q,
                # priors
-               hyper = list(theta1 = list("PCprior", c(1.61, 0.01)), # Pr(sd>1) = 0.01 
-                            theta2 = list("PCprior", c(0.5, 0.66)))) # Pr(phi<0.5)=0.66
+               hyper = list(theta1 = list("PCprior", c(0.5, 0.01)), 
+                            theta2 = list("PCprior", c(0.5, 0.5)))) 
 ```
 
 **Interpretation:**
 
 -   Prior on $\tau_b$: low probability of large values
 
--   Prior on $\phi$: assumes that the unstructured random effect accounts for more of the variability than the spatially structured effect.
+-   Prior on $\phi$ assumes that the unstructured random effect accounts for more of the variability than the spatially structured effect.
 
 
+## Parameters from BYM2 model
+
+```{r}
+#| eval: true
+#| echo: true
+# define model component
+cmp2 = ~ Intercept(1) +  pm10(pm10, model = "linear") +
+  ui(region_id, model = "bym2", graph = Q, # priors
+               hyper = list(theta1 = list("PCprior", c(1.61, 0.01)), # Pr(sd>1) = 0.01 
+                            theta2 = list("PCprior", c(0.5, 0.66)))) # Pr(phi<0.5)=0.66
+
+# define model predictor
+eta2 =  observed ~ Intercept + ui  + pm10
+
+# build the observation model
+lik2 = bru_obs(formula = eta2, 
+              family = "poisson",
+              E = expected,
+              data = resp_cases)
+
+# fit the model
+fit2 = bru(cmp2, lik2)
+
+round(fit1$summary.hyperpar,3)
+
+round(fit2$summary.hyperpar,3)
+```
+
+
+
+
+## BYM2 model - Specification {.smaller}
+
+BYM2-model is a union of the besag model $u^∗$ and a iid model $v^∗$ so that:
+$$
+x = \begin{pmatrix}u^∗  + v^* \\ v^*
+\end{pmatrix}= \begin{pmatrix}\dfrac{1}{\sqrt{\tau_b}} \left(\sqrt{1-\phi}v^*+\sqrt{\phi}u^*\right) \\ v^*
+\end{pmatrix}
+$$
+
+
+```{r}
+#| eval: false
+#| echo: true
+# define model component
+cmp = ~ Intercept(1) +  pm10(pm10, model = "linear") +
+  space(region_id, model = "bym2", graph = Q)
+
+```
+
+When doing prediction
+```{r}
+#| eval: false
+#| echo: true
+# define model component
+predictions = predict(fit, newdata, ~ space)
+```
+ we will get the sum of $u^∗  + v^*$ (so the first part of the vector)
+
+
+
+```{r}
+#| eval: false
+#| echo: true
+# define model component
+predictions = predict(fit, newdata, ~ space_latent)
+```
+ we will get $c(u^∗  + v^*,  v^*)$ (so the whole vector)
+
+## Scaling and Adjusting for disconnected components {.smaller auto-animate=TRUE}
+
+
+
+**Some details**
+
+
+- The case (`scale.model==FALSE` \& `adjust.for.con.comp == FALSE`)
+
+The option `constr=TRUE` is interpreted as a sum-to-zero constraint over the whole graph. Singletons
+are given a uniform distribution on (−∞, ∞) before the constraint.
+
+:::{.fragment}
+- The case (`scale.model==TRUE` \& `adjust.for.con.comp == FALSE`)
+
+The option `constr=TRUE` is interpreted as a sum-to-zero constraint over the whole graph. Let Q= τ R
+be the standard precision matrix from the besag-model with precision parameter τ . Then R, except
+the singletons, are scaled so that the geometric mean of the marginal variances is 1, and R is modified so that singletons have a standard Normal distribution.
+
+:::
+
+
+## Scaling and Adjusting for disconnected components {.smaller auto-animate=TRUE}
+
+
+- The case (`scale.model==FALSE` \& `adjust.for.con.comp == TRUE`)
+
+The option `constr=TRUE` is interpreted as one sum-to-zero constraint over each of the nc2 connected
+components of size ≥ 2. Singletons are given a uniform distribution on (−∞, ∞).
+
+:::{.fragment}
+- The case (`scale.model==TRUE` \& `adjust.for.con.comp == TRUE`)
+
+The option `constr=TRUE` is interpreted as nc2 sum-to-zero constraints for each of the connected
+components of size $\geq$ 2. Let Q= τ R be the standard precision matrix from the besag-model with
+precision parameter τ . Then R, are scaled so that the geometric mean of the marginal variances in
+each connected component of size $\geq$ 2 is 1, and modified so that singletons have a standard Normal
+distribution.
+:::
+
+## Alternative to BYM2 model
+
+The `besag` and `bym2` are not the only implemented models in `inlabru`
+
+- `besag2`: weighted spatial eﬀects
+- `besagproper`, `besagproper2` : A small quantity is added on the diagonal to make the model proper. Can be usefull to avoid too many constraints for space-tme
 
 ## Take-Home Message
 
 - areal data are data on discretised space
 - spatial relationships are represented through a neighbourhood structure
-- GMRFs are a computationally efficient representation of spatial structures
-- these will also be relevant – and very useful – when it comes to approximating spatial structures in continuous space
+- GMRFs are computationally efficient representation these will also be relevant – and very useful – when it comes to approximating spatial structures in continuous space
 
 
 # References {.smaller data-title-offset="true"}

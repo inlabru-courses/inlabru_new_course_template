@@ -70,7 +70,7 @@ library(cowplot) # needs install.packages("magick") to draw images
 
 ## Motivation {.smaller}
 
-Data are often observed in time, and observations at taken at similar points in time are often likely to be dependent.
+Data are often observed in time, and time dependence is often expected.
 
 ```{r}
 #| fig-width: 8
@@ -120,7 +120,7 @@ pred %>% ggplot() + geom_line(aes(year, mean)) +
 
 . . .
 
-**Note:** We can use the same approach to smooth covariate effects!
+**Note:** We can use the same model to smooth covariate effects!
 
 ## What is our goal? {auto-animate="true"}
 
@@ -143,29 +143,29 @@ ggdraw() +  draw_plot(p1) + draw_image(question, scale = .4, y = 0.15, x=0.35)
 
 . . .
 
-We can "predict" any unobserved data, not only future data, e.g.\ gaps in the data etc.
+We can "predict" any unobserved data, not only future data, e.g. gaps in the data etc.
 
 ## Modelling time with INLA {auto-animate="true"}
 
 Time can be indexed over a
 
--   discrete domain (e.g., years)
+-   Discrete domain (e.g., years)
 
--   continuous domain
+-   Continuous domain
 
 ## Modelling time with INLA {auto-animate="true"}
 
 Time can be indexed over a
 
--   discrete domain (e.g., years)
+-   Discrete domain (e.g., years)
 
-    -   main models: RW1, RW2 and AR1
+    -   Main models: RW1, RW2 and AR1
 
-    -   **Note:** RW1 and RW2 are also used for smoothing covariates.
+    -   **Note:** RW1 and RW2 are also used for smoothing covariates
 
--   continuous domain
+-   Continuous domain
 
-    -   Here we use the so-called SPDE-approach (more on this later).
+    -   Here we use the so-called SPDE-approach (more on this later)
 
 # Discrete time modelling
 
@@ -217,7 +217,7 @@ ppreds %>%
 
 ```
 
-**Goal** we want to understand the pattern and predict into the future.
+**Goal** we want understand the pattern and predict into the future
 
 ## Random Walk models {.smaller}
 
@@ -268,9 +268,9 @@ ggplot(dd, aes(time, y)) +
 
 . . .
 
--   Random Walk of order 1 (RW1): we consider the two nearest neighbours
+-   Random Walk of order 1 (RW1) we take the two nearest neighbours
 
--   Random Walk of order 2 (RW2): we consider the four nearest neighbours
+-   Random Walk of order 2 (RW2) we take the four nearest neighbours
 
 ## Random walks of order 1 {auto-animate="true"}
 
@@ -311,7 +311,7 @@ $$
   \right) = \exp\!\left(-\tfrac{1}{2} \, \mathbf{u}^{\top} \mathbf{Q}\ \mathbf{u}\right)
 $$
 
-Important things to understand (not just for RW1 mdoels!):
+Important things to understand (not just for RW1 models!):
 
 1.  **The (sparse) precision matrix**
 2.  Role of the precision parameter $\tau$ and prior distribution
@@ -323,8 +323,8 @@ Important things to understand (not just for RW1 mdoels!):
 
 We have talked about the **precision** matrix $\mathbf{Q}$ but...
 
--   What is it?
--   Why we will keep talking about it?
+-   what is it?
+-   why we will keep talking about it?
 -   What does it have to do the GMRF (and what are they)?
   
 
@@ -334,8 +334,9 @@ Let's start at the beginning :smiley:
 
 A **Gaussian distribution** $\mathbf{u}\sim\mathcal{N}(0,\Sigma)$ is controlled by:
 
-—  The mean vector $\mu$, which we have set equal to 0. This is the centre of the distribution.
-—  The matrix $\Sigma$ describes all pairwise covariances $\Sigma_{ij} = \text{Cov}(u_i, u_j)$.
+—  The **mean vector** $\mu$, which we have set equal to 0. This is the centre of the distribution
+
+—  The **covariance matrix** $\Sigma$ describes all pairwise covariances $\Sigma_{ij} = \text{Cov}(u_i, u_j)$
 
 Formally
 
@@ -344,7 +345,7 @@ $$
 $$
 
 
-The **precision matrix** is the inverse of the **covariance matrix**
+The **precision matrix** is inverse of the **covariance matrix**
 
 $$
 \mathbf{Q} = \mathbf{\Sigma}^{-1}
@@ -357,13 +358,13 @@ $$
 | **mostly theoretical** | **mostly computational** |
 | Analytically tractable. | $\Sigma$ usually is large and **dense** |
 | We have a good understanding of its properties. | Computations scale as $\mathcal{O}(n^3)$ |
-| Basically, it’s easy to do the theory. | Not suitable for large problems. |
+| Basically, it’s easy to do the theory | Not feasible for large problems |
 
 . . .
 
 We need to reduce the computational burden !
 
-This can be done by using **sparse** matrices, i.e.\ matrices where a  lot of entries are exactly zero!!
+This can be done by using **sparse** matrices, ie matrices where a  lot of entries are exactly zero!!
 
 
 ## Two possible options
@@ -388,9 +389,9 @@ $$
 
     -   $\Sigma_{ij} = \text{Cov}(u_i, u_j)$ : Covariance between $u_i$ and $u_j$
     -   $\Sigma_{ij} = 0$ $\longrightarrow$ $u_i$ and $u_j$ are *independent*
-    -   A sparse covariance matrix implies that many elements of $\mathbf{u}$ are mutually independent... Is this desirable?
+    -   A sparse covariance matrix implies that many elements of $\mathbf{u}$ are mutually independent.....is this desirable?
 
-2.  Force the *precision* matrix $\mathbf{Q} = \Sigma^{-1}$ to be sparse.
+2.  Force the *precision* matrix $\mathbf{Q} = \Sigma^{-1}$ to be sparse
 
 ## Two possible options {auto-animate="true"}
 
@@ -402,14 +403,16 @@ $$
 
     -   $\Sigma_{ij} = \text{Cov}(u_i, u_j)$ : Covariance between $u_i$ and $u_j$
     -   $\Sigma_{ij} = 0$ $\longrightarrow$ $u_i$ and $u_j$ are *independent*
-    -   A sparse covariance matrix implies that many elements of $\mathbf{u}$ are mutually independent... Is this desirable?
+    -   A sparse covariance matrix implies that many elements of $\mathbf{u}$ are mutually independent.....is this desirable?
 
-2.  Force the *precision* matrix $\mathbf{Q} = \Sigma^{-1}$ to be sparse.
+2.  Force the *precision* matrix $\mathbf{Q} = \Sigma^{-1}$ to be sparse
 
     -   What does $Q_{ij}$ represents?
-    -   What does a sparse precision matrix imply?
+    -   What does a sparse precision matrix implies?
 
-## What does $Q_{ij}$ represent?
+
+
+## What does $Q_{ij}$ represents?
 
 $Q_{ij}$ is an element of the precision matrix 
 
@@ -457,7 +460,7 @@ $$
 ## GMRF and INLA
 
 -   Every component of the *latent Gaussian* field $\mathbf{u}$ in an INLA model is always a GMRF!!
--   We will see how the idea of GMRF expands also to continuously indexed processes (SPDE approach).
+-   We will see how the idea of GMRF expands also for continuously indexed processes (SPDE approach)
 
 ## Random walks of order 1 {auto-animate="true"}
 
@@ -513,7 +516,7 @@ ggplot() + geom_point(data = lakes, aes(year, Erie)) +
 
 We need to set a *prior distribution* for $\tau$.
 
-A common option are the so-called *PC-priors*
+A common option is the so called *PC-priors*
 
 ## Penalized Complexity (PC) priors {auto-animate="true"}
 
@@ -523,7 +526,7 @@ A common option are the so-called *PC-priors*
 
 -   They are built with two principles in mind:
 
-    1.  The prior **discourages overdispersion** by penalizing deviation from a *base model*
+    1.  The prior **discourages overfitting** by penalizing deviation from a *base model*
 
 ::::: columns
 ::: {.column width="60%"}
@@ -548,19 +551,19 @@ ggplot() + geom_point(data = lakes, aes(year, Erie)) +
 :::
 
 ::: {.column width="40%"}
--   A line is the *base model*.
+-   A line is the *base model*
 
--   We want to penalize more complex models.
+-   We want to penalize more complex models
 :::
 :::::
 
 ## Penalized Complexity (PC) priors {auto-animate="true"}
 
--   PC priors are available in `inlabru` for many model parameters
+-   PC prior are easily available in `inlabru` for many model parameters
 
--   They are built with two principles in mind:
+-   They are built with two principle in mind:
 
-    1.  The prior **discourages overdispersion** by penalizing deviation from a *base model*
+    1.  The prior **discourages overfitting** by penalizing deviation from a *base model*
     2.  **User-defined** scaling
 
 ::::: columns
@@ -669,7 +672,7 @@ Important things to understand (not just for RW1 models!):
 
 1.  The (sparse) precision matrix
 2.  Role of the precision parameter $\tau$ and prior distribution
-3.  **RW as an intrinsic model**
+3.  **RW as intrinsic model**
 
 
 ## RW as intrinsic models {.smaller}
@@ -741,9 +744,9 @@ $$
 u_t = \text{mean}(u_{t-2} ,u_{t-1} , u_{t+1}, u_{t+2} ) + \text{some Gaussian error with precision  } \tau
 $$
 
--   RW2 yields smoother results than RW1.
+-   RW2 are smoother than RW1
 
--   The precision has the same role as for RW1.
+-   The precision has the same role as for RW1
 
 ## Example {.smaller}
 
@@ -795,24 +798,24 @@ ggplot()+ geom_line(data = pred1, aes(year, mean, color = "rw1")) +
 
 ## RW models as smoothers for covariates {.smaller}
 
--   RW models are discrete models.
+-   RW models are discrete models
 
--   Covariates are often recorded as continuous values.
+-   Covariates are often recorded as continuous values
 
--   The function `inla.group()` bins covariate values into groups (default 25 groups).
+-   The function `inla.group()` will bin covariate values into groups (default 25 groups)
 
 > `inla.group(x, n = 25, method = c("cut", "quantile"))`
 
 -   Two ways to bin
 
-    -   `cut` (default) splits the data using equal-length intervals
+    -   `cut` (default) splits the data using equal length intervals
     -   `quantile` uses equi-distant quantiles in the probability space.
 
 ## RW models as smoothers for covariates - Example
 
 ::::: columns
 ::: {.column width="50%"}
-The data are derived from an study of 892 females under 50 years in three Gambian villages in West Africa.
+The data are derived from an anthropometric study of 892 females under 50 years in three Gambian villages in West Africa.
 
 `Age` - Age of respondent (continuous)
 
@@ -878,7 +881,7 @@ pred %>% ggplot() +
 
 -   One hyperparameter: the precision $\tau$
 
-    -   Use PC priors for $\tau$
+    -   Use PC prior for $\tau$
 
 -   It is an *intrinsic* model
 
@@ -930,7 +933,7 @@ The AR1 model has two parameters
         \text{Prob}(\sigma > u) = \alpha
         $$
 
--   The autocorrelation (or persistence) parameter \$\phi\in(-1,1)
+-   The autocorrelation (or persistence) parameter $\phi\in(-1,1)$
 
     -   Two choices of PC priors
 
@@ -1102,7 +1105,7 @@ rbind(cbind(pred1, model = "rw1"),
 
 ## AR1 vs. RW models
 
--   RW1 models can be seen as a limitof AR1 models
+-   RW1 models can be seen as a limit for AR1 models
 
 -   They are not too different when smoothing, but can give different predictions.
 
@@ -1112,7 +1115,7 @@ rbind(cbind(pred1, model = "rw1"),
 
 -   Sometimes the data are not collected at discrete time points but over continuous time
 
--   One solution (not a bad one usually) is to discretize the time and use RW model (AR models are then harder to justify...)
+-   One solution (not a bad one usually) is to discretize the time and use RW model (AR models are then harder to justify..)
 
 -   A different solution is to use a continuous smoother based on a continuous Gaussian Random Field (GRF) $\omega(t)$
 
@@ -1153,44 +1156,91 @@ What is this?
 -   $(\kappa^2-\Delta)^{\alpha/2}$ is an operator that "smoothes" the white noise.
 -   $\kappa$ and $\alpha$ are parameters
 
-## One analogy.. {.smaller}
 
--   Think of white noise as someone randomly tapping along a rope.
 
-    -   The taps are independent.
-    -   Some are big, some are small.
-    -   They have no relation to each other.
-    -   This is just like White noise!
+## One analogy {.smaller auto-animate="true" background-color="#FFFFFF"}
 
-. . .
+:::::: columns
+:::: {.column width="40%"}
+Imagine a guitar string stretched from left to right.
 
--   But the rope has tension and stiffness
+-   Now imagine someone randomly taps along it at many locations:
 
-    -   the tension spreads each tap to nearby points.
-    -   Sharp jumps are softened.
+    ::: incremental
+    -   Each tap is independent
+    -   Some taps are strong, some weak
+    -   There is no coordination between taps
+    -   A tap at one location tells you nothing about a tap nearby
+    :::
 
-. . .
+::: fragment
+*This is pure randomness.* But a real string does not behave like this
+:::
+::::
 
--   The rope settles into a smooth wiggly shape (just like a Matérn field!)
-
-. . .
-
-The parameters:
-
--   Tension = controls how far randomness propagates ($\kappa$)
-
--   Stiffness = controls how smooth the field becomes ($\alpha$)
-
-## SPDE as a smoothing operator
-
+::: {.column width="60%"}
 ```{r}
-# # spde_rope_demo.R
-# # Illustrate SPDE-as-a-rope (1D) -> solving (kappa^2 - d2/dx2)^(alpha/2) u = W
-# # Author: ChatGPT
-# # Date: 2025-11-16
+#| echo: false
+#| fig-width: 10
+#| fig-height: 10
 
-
+set.seed(2026)
 # ----- Parameters -----
+N      <- 650        # number of grid points
+x_min  <- 0
+x_max  <- 10
+x      <- seq(x_min, x_max, length.out = N)
+h      <- x[2] - x[1]   # grid spacing
+
+W <- rnorm(N, mean = 0, sd = 1)  # white noise on the grid
+
+p1 = data.frame(x =x,
+           W = W)
+
+ggplot(p1,aes(x=x,y=W))+geom_line(col="grey60")+geom_hline(yintercept = 0) + coord_cartesian(ylim = c(-1, 1)) + labs(x="t")
+
+```
+:::
+::::::
+
+::: notes
+No smoothness
+
+Sharp up/down jumps
+
+No gentle waves
+
+No continuity in behavior
+
+That's because nothing connects one tap to the next.
+:::
+
+##  SPDE as a smoothing operator {.smaller auto-animate="true" background-color="#FFFFFF"}
+
+:::::: columns
+:::: {.column width="40%"}
+Imagine a guitar string stretched from left to right.
+
+-   The rope has tension and stiffness
+    -   the tension spreads each tap to nearby points
+    -   Sharp jumps are softened. $(\kappa^2-\Delta)^{\color{red}{\alpha}/2}\omega(t) = W(t)$
+
+::: fragment
+-   $\Delta$ measures the local curvature
+-   $\kappa$ controls how far randomness propagates
+-   stronger tension (large $\kappa$) = stronger pull
+
+$$(\color{red}{\kappa^2}-\Delta)\omega(t) = W(t), ~~~\text{for } \alpha=2$$
+:::
+::::
+
+::: {.column width="60%"}
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 10
+
+set.seed(2026)
 N      <- 650        # number of grid points
 x_min  <- 0
 x_max  <- 10
@@ -1236,16 +1286,11 @@ solve_alpha <- function(A, W, m = 1) {
 # ----- Generate one white-noise realization -----
 W <- rnorm(N, mean = 0, sd = 1)  # white noise on the grid
 
+# alpha=2m
 
-u_fix1 <- solve_alpha(build_A(0.5), W, m = 2/2)  # alpha=2 -> m=1
-u_fix2 <- solve_alpha(build_A(1), W, m = 2/2)  # alpha=2 -> m=1
-u_fix3 <- solve_alpha(build_A(2), W, m = 2/2)  # alpha=2 -> m=1
-
-
-u_fix12 <- solve_alpha(build_A(0.5), W, m = 4/2)  # alpha=2 -> m=1
-u_fix22 <- solve_alpha(build_A(1), W, m = 4/2)  # alpha=2 -> m=1
-u_fix32 <- solve_alpha(build_A(2), W, m = 4/2)  # alpha=2 -> m=1
-
+u_fix1 <- solve_alpha(build_A(0.5), W, m = 2)  # alpha=2 -> m=1
+u_fix2 <- solve_alpha(build_A(1), W, m = 2)  # alpha=2 -> m=1
+u_fix3 <- solve_alpha(build_A(2), W, m = 2)  # alpha=2 -> m=1
 
 p1 = data.frame(x =x,
            W = W,
@@ -1255,26 +1300,162 @@ p1 = data.frame(x =x,
            ) %>%
   ggplot() + geom_line(aes(x,W), alpha = 0.2) + geom_line(aes(x,u1, color = "k = 0.5")) +
   geom_line(aes(x,u2, color = "k = 1")) +
-  geom_line(aes(x,u3, color = "k = 2")) + xlab("") + ylab("") + ggtitle("alpha = 1") + coord_cartesian(ylim = c(-1, 1))
+  geom_line(aes(x,u3, color = "k = 2")) + xlab("") + ylab("") + ggtitle("alpha = 2") + coord_cartesian(ylim = c(-1, 1))+scale_color_discrete(name="") +
+  theme(
+    legend.text  = element_text(size = 18),   # label text size
+    legend.key.size = unit(2, "cm"),         # size of the colour swatches
+    legend.title = element_text(size = 18)     # title (empty here, but sets size if you add one)
+  )
 
-p2 = data.frame(x =x,
-           W = W,
-           u1  = u_fix12,
-           u2  = u_fix22,
-           u3  = u_fix32
-) %>%
-  ggplot() + geom_line(aes(x,W), alpha = 0.2) +
-  geom_line(aes(x,u1, color = "k = 0.5")) +
-  geom_line(aes(x,u2, color = "k = 1")) +
-  geom_line(aes(x,u3, color = "k = 2"))+ xlab("") + ylab("") + ggtitle("alpha = 2") + coord_cartesian(ylim = c(-1, 1))
-
-library(patchwork)
-
-p1 + p2 + plot_layout(ncol = 1, guides = "collect")
+p1 + labs(x="t")
 
 ```
+:::
+::::::
 
-## Solving the SPDE {.smaller}
+::: notes
+Measure the bending at $\omega_i$ by taking the with respect the average of the neighbours (i.e. $\omega_i - (\omega_{i-1}+\omega_i/2) = \omega_{i-1} + 2\omega_i +z_{i+1}$).
+
+-   if $= 0 \rightarrow$ straight
+
+-   if the diff is large $\rightarrow$ sharply bent
+
+-   the sign tells you which way it bends
+
+The curvature need to divide by the spacing $h$ between points (assuming equal spacing), i.e., $(z_{i-1} + 2z_i +z_{i+1}) \times h^{-2}$.
+
+In a continuous space we measured this by taking the second derivative, i.e. the Laplacian operator
+
+As $h\to 0$ we measure the rate of change of slope, i.e. curvature as:
+
+$$(\omega_{i-1} + 2\omega_i +\omega_{i+1}) \times h^{-2}  \to \frac{\partial \omega}{\partial t^2} = \Delta \omega$$ Where $\omega(x)$ is the displacement of the string at position $t$.
+
+Tension ($\kappa$): resists large displacement If a tap pushes part of the string far up or down:
+
+-   tension pulls it back
+-   stronger tension = stronger pull
+
+$$
+\begin{aligned}
+(\color{red}{\kappa^2}-\Delta)\omega(t) &= W(t) \\
+\color{red}{\kappa^2}\omega(t) - \Delta \omega(t) &= W(t)\\
+\text{if } \omega(t) \text{ is large then }& \color{tomato}{\kappa^2 \omega(t)} \text{ becomes large too} \\
+\text{large pull}-\text{back bending}&=\text{random tap}
+\end{aligned}
+$$ In this case, To balance the equation, $\omega(t)$ must be smaller.
+:::
+
+##  SPDE as a smoothing operator {.smaller auto-animate="true" background-color="#FFFFFF"}
+
+:::::: columns
+:::: {.column width="40%"}
+Imagine a guitar string stretched from left to right.
+
+-   The rope has tension and stiffness
+    -   the tension spreads each tap to nearby points
+    -   Sharp jumps are softened.
+
+::: fragment
+-   Stiffness = controls how smooth the field becomes ($\alpha$)
+-   Larger $\alpha$ smoother the process will be
+
+$$
+(\kappa^2-\Delta)^{\color{red}{\alpha}/2}\omega(t) = W(t)
+$$
+:::
+::::
+
+::: {.column width="60%"}
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 10
+
+set.seed(2026)
+
+# Grid
+N      <- 650
+x_min  <- 0
+x_max  <- 10
+x      <- seq(x_min, x_max, length.out = N)
+h      <- x[2] - x[1]
+
+# Build D2
+D2 <- matrix(0, nrow = N, ncol = N)
+diag(D2) <- -2
+for(i in 1:(N-1)){
+  D2[i, i+1] <- 1
+  D2[i+1, i] <- 1
+}
+I_N <- diag(1, N)
+
+# White noise
+W <- rnorm(N, mean = 0, sd = 1)
+
+# Fix kappa
+kappa_fixed <- 0.5
+
+# alpha = 2  -> m = 1
+u_alpha2 <- solve_alpha(build_A(kappa_fixed), W, m = 1)
+
+# alpha = 4  -> m = 2
+u_alpha4 <- solve_alpha(build_A(kappa_fixed), W, m = 2)
+
+# Plot
+library(ggplot2)
+library(dplyr)
+
+df <- data.frame(
+  x = x,
+  W = W,
+  alpha2 = u_alpha2,
+  alpha4 = u_alpha4
+)
+
+p <- df %>%
+  ggplot() +
+  geom_line(aes(x, W), alpha = 0.2) +
+  geom_line(aes(x, alpha2, color = "alpha = 2")) +
+  geom_line(aes(x, alpha4, color = "alpha = 4")) +
+  labs(
+    x = "t",
+    y = "W"
+  ) +
+  coord_cartesian(ylim = c(-1, 1)) +
+  scale_color_discrete(name = "")+
+  theme(
+    legend.text  = element_text(size = 18),   # label text size
+    legend.key.size = unit(2, "cm"),         # size of the colour swatches
+    legend.title = element_text(size = 18)     # title (empty here, but sets size if you add one)
+  )
+
+p
+
+
+```
+:::
+::::::
+
+::: notes
+Lastly $\alpha$ controls how *smooth* the final shape. E.g.,
+
+$$
+W(t) = \begin{cases}
+(\kappa^2-\Delta)\omega(t) & \text{if } \alpha= 2 \text{ i.e., string resists curvature once}\\
+(\kappa^2-\Delta)^2\omega(t) & \text{if } \alpha= 4 \text{ i.e., string resists curvature twice}
+\end{cases}
+$$
+
+Take the white noise $W(t)$ and smooth it once by the operator $(\kappa^2 - \Delta)^{-1}$ so the operator filters the white noise once
+
+-   it reduces sharp spikes
+
+-   but still leaves some visible bumps
+
+At $\alpha=2$ we smooth the result again.. Each pass removes high-frequency components (sharp bumps)
+:::
+
+## Solving the SPDE {.smaller background-color="#FFFFFF" auto-animate="true"}
 
 Ok...but we still need to solve the SPDE to find $\omega(t)$!
 
@@ -1289,13 +1470,154 @@ Now we need to discretize the domain into T points (we cannot compute on the con
 We represent our solution as
 
 $$
-\omega(t) = \sum_{i = 1}^T\phi_i(t)w_i
+\omega(t) = \sum_{i = 1}^T\psi_i(t)w_i
 $$
 
 Where
 
--   $\phi_i(s)$ are (known) basis functions
+-   $\psi_i(t)$ are (known) basis functions for nodes $i=1,\ldots,T$
+
+    -   $\psi_i(t_i)= 1$
+
+    <!-- -->
+
+    -   $\psi_i(t_j) = 0 ~~\forall~~i \neq j$
+
+    <!-- -->
+
+    -   Linear between neighboring nodes
+:::
+
+::: {.column width="50%"}
+```{r}
+#| out-width: 70%
+
+locs = c(-5,10,15,25,40,50,60)
+mesh1d = fm_mesh_1d(locs, degree = 1, boundary = "neumann")
+p1 = ggplot() +
+  geom_fm(data = mesh1d, xlim = c(-10, 70)) +
+  geom_point(data = data.frame(x = locs, y = 0), aes(x,y)) +
+  geom_text(data = data.frame(x = locs + 0.5, y = -0.1), aes(x,y,label = 1:7))
+
+p1
+
+eval = fm_evaluator(mesh1d)
+w = round(runif(7), 3)
+
+ p1 + geom_line(data = data.frame(x = eval$x,
+                           y = fm_evaluate(eval, w)),
+                aes(x,y), size = 2) + ggtitle(paste("w=",paste(round(w,2), collapse = ', ')))
+
+```
+:::
+:::::
+
+::: notes
+-   "solving the SPDE" means Find a random function $\omega(t)$ such that the equality $(\kappa^2-\Delta)^{\alpha/2}Z\omega(t) = W(t)$ holds in distribution.
+-   in other words find $\omega(s)$ such that when the operator $(\kappa^2-\Delta)^{\alpha/2}$ is applied to it, it produces white noise
+-   OR, The Matérn field is the Gaussian field $\omega(s)$ produced by smoothing white noise $W(t)$ through the inverse operator $(\kappa^2-\Delta)^{\alpha/2}$.
+-   The Matérn field is infinite-dimensional so we approximate it using a finite basis expansion
+    -   we want a simple local basis
+    -   each basis only affects neighbors
+    -   so computations become sparse
+-   Each weight $w_i$ is basically the value of the field at node $i$
+-   The basis functions are:
+    -   Height = 1 at node
+    -   Zero at neighboring nodes
+    -   Linear in between
+-   A hat function is not the field. It is a *building block* for the field.
+-   the field between nodes is interpolated linearly so the vector of weights fully defines the approximate field.
+-   Since the SPDE is linear and the white noise is Gaussian, the solution is Gaussian
+:::
+
+## Solving the SPDE {.smaller background-color="#FFFFFF" auto-animate="true"}
+
+Ok...but we still need to solve the SPDE to find $\omega(t)$!
+
+Now we need to discretize the domain into T points (we cannot compute on the continuous!)
+
+::::: columns
+::: {.column width="50%"}
+We represent our solution as
+
+$$
+\omega(t) = \sum_{i = 1}^T\psi_i(t)w_i
+$$
+
+Where
+
+-   $\psi_i(t)$ are (known) basis functions for nodes $i=1,\ldots,T$
+
 -   $w_i$ are (unknown) weights
+
+    -   the field value $\omega(s)$ is a **linear interpolation** between the two neighboring weights
+:::
+
+::: {.column width="50%"}
+```{r}
+#| out-width: 70%
+
+locs = c(-5,10,15,25,40,50,60)
+mesh1d = fm_mesh_1d(locs, degree = 1, boundary = "neumann")
+p1 = ggplot() +
+  geom_fm(data = mesh1d, xlim = c(-10, 70)) +
+  geom_point(data = data.frame(x = locs, y = 0), aes(x,y)) +
+  geom_text(data = data.frame(x = locs + 0.5, y = -0.1), aes(x,y,label = 1:7))
+
+p1
+
+eval = fm_evaluator(mesh1d)
+w = round(runif(7), 3)
+
+ p1 + geom_line(data = data.frame(x = eval$x,
+                           y = fm_evaluate(eval, w)),
+                aes(x,y), size = 2) + ggtitle(paste("w=",paste(round(w,2), collapse = ', ')))
+
+```
+:::
+:::::
+
+::: notes
+-   "solving the SPDE" means Find a random function $Z(t)$ such that the equality $(\kappa^2-\Delta)^{\alpha/2}Z(t) = W(t)$ holds in distribution.
+-   in other words find $Z(s)$ such that when the operator $(\kappa^2-\Delta)^{\alpha/2}$ is applied to it, it produces white noise
+-   OR, The Matérn field is the Gaussian field $Z(s)$ produced by smoothing white noise $W(t)$ through the inverse operator $(\kappa^2-\Delta)^{\alpha/2}$.
+-   The Matérn field is infinite-dimensional so we approximate it using a finite basis expansion
+    -   we want a simple local basis
+    -   each basis only affects neighbors
+    -   so computations become sparse
+-   Each weight $w_i$ is basically the value of the field at node $i$
+-   The basis functions are:
+    -   Height = 1 at node
+    -   Zero at neighboring nodes
+    -   Linear in between
+-   A hat function is not the field. It is a *building block* for the field.
+-   the field between nodes is interpolated linearly so the vector of weights fully defines the approximate field.
+-   Since the SPDE is linear and the white noise is Gaussian, the solution is Gaussian
+:::
+
+## Solving the SPDE {.smaller background-color="#FFFFFF" auto-animate="true"}
+
+Ok...but we still need to solve the SPDE to find $\omega(t)$!
+
+Now we need to discretize the domain into T points (we cannot compute on the continuous!)
+
+::::: columns
+::: {.column width="50%"}
+We represent our solution as
+
+$$
+\omega(t) = \sum_{i = 1}^T\psi_i(t)w_i
+$$
+
+Where
+
+-   $\psi_i(t)$ are (known) basis functions for nodes $i=1,\ldots,T$
+
+-   $w_i$ are (unknown) weights
+
+-   This solution is then approximated using a finite combination of piece-wise linear basis functions.
+
+-   The solution is completely defined by a Gaussian vector of weights with zero mean and a sparse precision matrix.
 :::
 
 ::: {.column width="50%"}
@@ -1327,7 +1649,7 @@ w = round(runif(7), 3)
 -   The continuous Matérn GRF is the solution of an SPDE and is represented as
 
 $$
-\omega(t) = \sum_{i = 1}^T\phi_i(t)w_i
+\omega(t) = \sum_{i = 1}^T\psi_i(t)w_i
 $$
 
 -   The weights vector $\mathbf{w} = (w_1,\dots,w_N)$ is Gaussian with a **sparse** precision matrix $\longrightarrow$ Computational convenience
@@ -1339,14 +1661,14 @@ $$
 
 -   These parameters are linked to the parameters of the SPDE
 
--   We need to assign priors to them
+-   We need to assign prior to them
 
 ## PC priors for range and marginal variance
 
 Remember:
 
 -   PC priors penalize distance from a basis model
--   Are expressed in a user-friendly way
+-   Are expressed in a user friendly way
 
 . . .
 
@@ -1400,22 +1722,22 @@ p1 = ggplot() + geom_line(data=dens_prior_range(5, 0.5),
 
 
 p2 = ggplot() + geom_line(data=dens_prior_sd(1, 0.5),
-                     aes(x,y,color = "P(rho<5) = 0.5")) +
+                     aes(x,y,color = "P(sd>1) = 0.5")) +
   geom_line(data=dens_prior_sd(1, 0.1),
-                     aes(x,y,color = "P(rho<5) = 0.1")) +
+                     aes(x,y,color = "P(sd>0.2) = 0.1")) +
   geom_line(data=dens_prior_sd(0.2, 0.5),
-                     aes(x,y,color = "P(rho<10) = 0.5")) +
+                     aes(x,y,color = "P(sd>0.2) = 0.5")) +
   geom_line(data=dens_prior_sd(0.2, 0.1),
-                     aes(x,y,color = "P(rho<10) = 0.1")) +
+                     aes(x,y,color = "P(sd>0.2) = 0.1")) +
   xlab("") + ylab("") + theme(legend.title = element_blank())+
-  ggtitle("PC prior for range") + xlim(c(0,5))
+  ggtitle("PC prior for sd") + xlim(c(0,5))
 
 p1 + p2
 ```
 
 ## In practice... {.smaller}
 
-If you want to use a continuous model for time (or for smoothing a covariate) you need to:
+If you want to use a continous model for time (or for smoothing a covariate) you need to:
 
 1.  Define a 1-dimensional mesh over the domain of interest (allowing for some buffer around your domain)
 

@@ -769,7 +769,7 @@ bind_rows(
 # Modelling the great Lakes {background-image="figures/lakes.jpg"}
 
 
-## Models with a multivariate response
+## Models with a multivariate response {auto-animate=TRUE}
 
 Here we will revisit the great Lakes dataset  which contains the water level heights for the lakes Erie, Michigan/Huron and St Clair from 1918 to 2009.
 
@@ -783,18 +783,96 @@ library(DAAG)
 library(scico)
 data("greatLakes")
 
-greatLakes.df = data.frame(as.matrix(greatLakes),
-                           year = time(greatLakes)) %>%
-  pivot_longer(cols = c("Erie","michHuron","Ontario","StClair"),
-               names_to = "Lakes",
-               values_to = "height" ) %>% filter(Lakes != "Ontario") %>%
-  mutate(year_id = year-1917 )
+library(DAAG)
+library(scico)
+data("greatLakes")
 
-ggplot(greatLakes.df,aes(year,height,colour=Lakes)) + geom_point() + geom_line() + facet_wrap(~Lakes,scales="free") 
+greatLakes.df <- data.frame(as.matrix(greatLakes),
+                            year = as.numeric(time(greatLakes))) %>%
+  pivot_longer(cols = c("Erie", "michHuron", "Ontario", "StClair"),
+               names_to = "Lakes", values_to = "height") %>%
+  filter(Lakes != "Ontario") %>%
+  mutate(year_id = year - 1917)
+
+lake_labels <- c(michHuron = "Michigan–Huron", StClair = "St Clair", Erie = "Erie")
+
+
+greatLakes.df %>%
+  mutate(Lakes = factor(Lakes, levels = names(lake_labels))) %>%
+  ggplot(aes(year, height, colour = Lakes)) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 1) +
+  facet_wrap(~ Lakes, ncol = 1, scales = "free_y",
+             labeller = labeller(Lakes = lake_labels)) +
+  scale_colour_scico_d(palette = "batlow", end = 0.8) +
+  labs(x = "Year", y = "Water level (m)") +
+  theme_bw(base_size = 16) +
+  theme(legend.position = "none")
 
 ```
 
 
+## Models with a multivariate response {auto-animate=TRUE .smaller}
+
+
+::::: columns
+
+::: {.column width="60%"}
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| fig-width: 8
+#| fig-height: 8
+#| out-width: "100%"
+
+
+
+greatLakes.df %>%
+  mutate(Lakes = factor(Lakes, levels = names(lake_labels))) %>%
+  ggplot(aes(year, height, colour = Lakes)) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 1) +
+  facet_wrap(~ Lakes, ncol = 1, scales = "free_y",
+             labeller = labeller(Lakes = lake_labels)) +
+  scale_colour_scico_d(palette = "batlow", end = 0.8) +
+  labs(x = "Year", y = "Water level (m)") +
+  theme_bw(base_size = 16) +
+  theme(legend.position = "none")
+```
+
+:::
+
+::: {.column width="40%"}
+
+
+::: {style="height: 50px;"}
+:::
+
+::: {style="font-size: 85%;"}
+
+- The lakes are connected: Michigan–Huron drains through Lake St Clair into Erie.
+- Their levels share a strong common signal:
+
+```{r}
+#| echo: false
+greatLakes.df %>%
+  select(year, Lakes, height) %>%
+  pivot_wider(names_from = Lakes, values_from = height) %>%
+  select(`Mich–Huron` = michHuron, `St Clair` = StClair, Erie) %>%
+  cor() %>%
+  round(2) %>%
+  knitr::kable()
+```
+
+- Erie and St Clair move almost identically; Michigan–Huron departs more.
+
+:::
+
+:::
+
+:::::
 
 
 ## Models with a multivariate response {.smaller auto-animate="true"}
@@ -809,9 +887,9 @@ ggplot(greatLakes.df,aes(year,height,colour=Lakes)) + geom_point() + geom_line()
 
 -   **Stage 2** Latent field model $$
     \begin{aligned}
-    \mu_{1i} &=  \beta_{01} + f_1(x) + g(x) \\
-    \mu_{2i} &=  \beta_{02} + f_2(x) + \lambda\times g(x) \\
-    \mu_{3i} &=  \beta_{03} + f_3(x) + \delta\times g(x) 
+    \mu_{1i} &=  \beta_{01} +  g(x) \\
+    \mu_{2i} &=  \beta_{02}  + \lambda\times g(x) \\
+    \mu_{3i} &=  \beta_{03}  + \beta_{\textrm{Mich}}(x)+ \delta\times g(x) 
     \end{aligned}
     $$
     
@@ -844,13 +922,14 @@ greatLakes.df= greatLakes.df %>%
   mutate(year_id = year-1917 )
 
 library(fmesher)
-mesh1D <- fm_mesh_1d(seq(1,92,5), degree = 2, boundary = "cyclic")
-# Use PC-priors for the Matérn 
-spde1D <- inla.spde2.pcmatern(mesh1D,
-                                prior.range = c(30, 0.95), # P(range < 30) = 0.95
-                                prior.sigma = c(1, 0.5)    # P(sigma > 1) = 0.5
-)
 
+mesh1D <- fm_mesh_1d(seq(1,92,5), degree = 2)
+
+
+spde1D <- inla.spde2.pcmatern(mesh1D,
+  prior.range = c(5, 0.1),       # P(range < 5 years) = 0.1
+  prior.sigma = c(1, 0.5)          # P(sigma > 1) = 0.5
+)
 ```
 
 
@@ -890,9 +969,9 @@ $$
 
 $$
 \begin{aligned}
-\mu_{1i} &=  \color{#FF6B6B}{\boxed{\beta_{01}}} + \color{#FF6B6B}{\boxed{f_1(x)}} + \color{#FF6B6B}{\boxed{g(x)}} \\
-\mu_{2i} &=  \color{#FF6B6B}{\boxed{\beta_{02}}} + \color{#FF6B6B}{\boxed{f_2(x)}} + \color{#FF6B6B}{\boxed{\lambda\times g(x)}} \\
-\mu_{3i} &=  \color{#FF6B6B}{\boxed{\beta_{03}}} + \color{#FF6B6B}{\boxed{f_3(x)}} + \color{#FF6B6B}{\boxed{\delta\times g(x)}}
+\mu_{1i} &=  \color{#FF6B6B}{\boxed{\beta_{01}}}  + \color{#FF6B6B}{\boxed{g(x)}} \\
+\mu_{2i} &=  \color{#FF6B6B}{\boxed{\beta_{02}}} + \color{#FF6B6B}{\boxed{\lambda\times g(x)}} \\
+\mu_{3i} &=  \color{#FF6B6B}{\boxed{\beta_{03}}} +   \color{#FF6B6B}{\boxed{\beta_{\textrm{Mich}}(x)}}  + \color{#FF6B6B}{\boxed{\delta\times g(x)}}
 \end{aligned}
 $$
 
@@ -908,13 +987,11 @@ $$
 #| eval: true
 #| warning: false
 #| message: false
-#| code-line-numbers: "1-10"
+#| code-line-numbers: "1-7"
 
 # define model component
 cmp = ~ -1 + beta0_erie(1) + beta0_mich(1) +  beta0_clair(1) +
-  GP_erie(year_id, model = spde1D) +
-  GP_mich(year_id, model = spde1D) +
-  GP_clair(year_id, model = spde1D) +
+  trend_mich(year_id, model = "linear") +
   GP_shared(year_id, model = spde1D) +
   GP_shared_copy1(year_id, copy = "GP_shared", fixed = FALSE,
                  hyper = list(beta = list(prior = "normal", param = c(0, 0.1)))) + # prior on lambda
@@ -922,15 +999,15 @@ cmp = ~ -1 + beta0_erie(1) + beta0_mich(1) +  beta0_clair(1) +
                  hyper = list(beta = list(prior = "normal", param = c(0, 0.1)))) # prior on delta
 
 # define linear predictors
-erie_lik <- bru_obs(formula = height  ~  beta0_erie + GP_erie + GP_shared,
+erie_lik <- bru_obs(formula = height  ~  beta0_erie  + GP_shared,
       family = "lognormal",
       data = greatLakes.df  %>% filter(Lakes == "Erie"))
   
-mich_lik <- bru_obs(formula = height  ~  beta0_mich + GP_mich + GP_shared_copy1,
+mich_lik <- bru_obs(formula = height  ~  beta0_mich  + trend_mich + GP_shared_copy1,
       family = "lognormal",
       data = greatLakes.df  %>% filter(Lakes == "michHuron"))
 
-clair_lik <- bru_obs(formula = height  ~  beta0_clair + GP_clair + GP_shared_copy2,
+clair_lik <- bru_obs(formula = height  ~  beta0_clair  + GP_shared_copy2,
       family = "lognormal",
       data = greatLakes.df  %>% filter(Lakes == "StClair"))
 
@@ -971,9 +1048,9 @@ $$
 
 $$
 \begin{aligned}
-\mu_{1i} &=  \color{#FF6B6B}{\boxed{\beta_{01} + f_1(x) +g(x)}} \\
-\mu_{2i} &=  \color{#FF6B6B}{\boxed{\beta_{02} + f_2(x) + \lambda\times g(x)}} \\
-\mu_{3i} &=  \color{#FF6B6B}{\boxed{\beta_{03} + f_3(x) + delta\times g(x)}}
+\mu_{1i} &=  \color{#FF6B6B}{\boxed{\beta_{01}  +g(x)}} \\
+\mu_{2i} &=  \color{#FF6B6B}{\boxed{\beta_{02}  + \lambda\times g(x)}} \\
+\mu_{3i} &=  \color{#FF6B6B}{\boxed{\beta_{03} + \beta_{\textrm{Mich}} + \delta\times g(x)}}
 \end{aligned}
 $$
 
@@ -990,13 +1067,11 @@ $$
 #| eval: false
 #| warning: false
 #| message: false
-#| code-line-numbers: "12,13,17,21"
+#| code-line-numbers: "10,11,15,19"
 
 # define model component
 cmp = ~ -1 + beta0_erie(1) + beta0_mich(1) +  beta0_clair(1) +
-  GP_erie(year_id, model = spde1D) +
-  GP_mich(year_id, model = spde1D) +
-  GP_clair(year_id, model = spde1D) +
+  trend_mich(year_id, model = "linear") +
   GP_shared(year_id, model = spde1D) +
   GP_shared_copy1(year_id, copy = "GP_shared", fixed = FALSE,
                  hyper = list(beta = list(prior = "normal", param = c(0, 0.1)))) + # prior on lambda
@@ -1004,15 +1079,15 @@ cmp = ~ -1 + beta0_erie(1) + beta0_mich(1) +  beta0_clair(1) +
                  hyper = list(beta = list(prior = "normal", param = c(0, 0.1)))) # prior on delta
 
 # define linear predictors
-erie_lik <- bru_obs(formula = height  ~  beta0_erie + GP_erie + GP_shared,
+erie_lik <- bru_obs(formula = height  ~  beta0_erie + GP_shared,
       family = "lognormal",
       data = greatLakes.df  %>% filter(Lakes == "Erie"))
   
-mich_lik <- bru_obs(formula = height  ~  beta0_mich + GP_mich + GP_shared_copy1,
+mich_lik <- bru_obs(formula = height  ~  beta0_mich + trend_mich + GP_shared_copy1,
       family = "lognormal",
       data = greatLakes.df  %>% filter(Lakes == "michHuron"))
 
-clair_lik <- bru_obs(formula = height  ~  beta0_clair + GP_clair + GP_shared_copy2,
+clair_lik <- bru_obs(formula = height  ~  beta0_clair + GP_shared_copy2,
       family = "lognormal",
       data = greatLakes.df  %>% filter(Lakes == "StClair"))
 
@@ -1052,9 +1127,9 @@ $$
 
 $$
 \begin{aligned}
-\mu_{1i} &=  \beta_{01} + f_1(x) +g(x) \\
-\mu_{2i} &=  \beta_{02} + f_2(x) + \lambda\times g(x) \\
-\mu_{3i} &=  \beta_{03} + f_3(x) + delta\times g(x)
+\mu_{1i} &=  \beta_{01}  +g(x) \\
+\mu_{2i} &=  \beta_{02}+ \lambda\times g(x) \\
+\mu_{3i} &=  \beta_{03} +  \beta_{\textrm{Mich}}(x)  + \delta\times g(x)
 \end{aligned}
 $$
 
@@ -1071,13 +1146,11 @@ $$
 #| eval: false
 #| warning: false
 #| message: false
-#| code-line-numbers: "14,18,22|15,19,23|25-26"
+#| code-line-numbers: "12,16,20|13,17,21|23-24"
 
 # define model component
 cmp = ~ -1 + beta0_erie(1) + beta0_mich(1) +  beta0_clair(1) +
-  GP_erie(year_id, model = spde1D) +
-  GP_mich(year_id, model = spde1D) +
-  GP_clair(year_id, model = spde1D) +
+  GP_mich(year_id, model = "linear") +
   GP_shared(year_id, model = spde1D) +
   GP_shared_copy1(year_id, copy = "GP_shared", fixed = FALSE,
                  hyper = list(beta = list(prior = "normal", param = c(0, 0.1)))) + # prior on lambda
@@ -1085,15 +1158,15 @@ cmp = ~ -1 + beta0_erie(1) + beta0_mich(1) +  beta0_clair(1) +
                  hyper = list(beta = list(prior = "normal", param = c(0, 0.1)))) # prior on delta
 
 # define linear predictors
-erie_lik <- bru_obs(formula = height  ~  beta0_erie + GP_erie + GP_shared,
+erie_lik <- bru_obs(formula = height  ~  beta0_erie  + GP_shared,
       family = "lognormal",
       data = greatLakes.df  %>% filter(Lakes == "Erie"))
   
-mich_lik <- bru_obs(formula = height  ~  beta0_mich + GP_mich + GP_shared_copy1,
+mich_lik <- bru_obs(formula = height  ~  beta0_mich + trend_mich + GP_shared_copy1,
       family = "lognormal",
       data = greatLakes.df  %>% filter(Lakes == "michHuron"))
 
-clair_lik <- bru_obs(formula = height  ~  beta0_clair + GP_clair + GP_shared_copy2,
+clair_lik <- bru_obs(formula = height  ~  beta0_clair + GP_shared_copy2,
       family = "lognormal",
       data = greatLakes.df  %>% filter(Lakes == "StClair"))
 
@@ -1104,6 +1177,19 @@ fit_greatLakes <- bru( cmp,  erie_lik,  mich_lik,clair_lik)
 ```
 
 :::
+
+## Posterior summaries of hyperparameters
+
+Lets have a look at the poserior summaries of the shared GP
+
+```{r}
+tidy(fit_greatLakes,"hyperpar") %>% filter(str_detect(term, 'GP'))
+
+```
+
+- **Shared signal**: fluctuations common to all three lakes persist for about 8 years
+- **Lake scalings**: Michigan–Huron and St Clair follow the shared signal in phase with Erie.
+
 
 ## Model predictions for each response {.smaller}
 
@@ -1120,26 +1206,24 @@ pred.df <- data.frame(year_id = 1:92)
 
 predErie.bru <- predict(fit_greatLakes,
                       pred.df,
-                       height  ~  exp(beta0_erie + 
-                                        GP_erie + 
-                                        GP_shared ) ,
+                      height  ~ 
+                        exp(beta0_erie + GP_shared) ,
                       n.samples = 1000
 )
 
 
 predMich.bru <- predict(fit_greatLakes,
                       pred.df,
-                       height  ~   exp(beta0_mich + 
-                                         GP_mich + 
-                                         GP_shared_copy1) ,
+                       height  ~
+                        exp(beta0_mich + trend_mich + 
+                            GP_shared_copy1) ,
                       n.samples = 1000
 )
 
 predClair.bru <- predict(fit_greatLakes,
                       pred.df,
-                       height  ~   exp(beta0_clair + 
-                                         GP_clair +
-                                         GP_shared_copy2),
+                       height  ~  
+                        exp(beta0_clair + GP_shared_copy2),
                       n.samples = 1000
 )
 
@@ -1154,7 +1238,7 @@ predClair.bru <- predict(fit_greatLakes,
 
 ```{r}
 #| code-fold: true
-#| fig-height: 12
+#| fig-height: 10
 #| fig-width: 8
 
 
@@ -1182,7 +1266,10 @@ ggplot(predMich.bru,aes(y=mean,x=year_id))+
   geom_line()+
   geom_point(data= greatLakes.df  %>% filter(Lakes == "michHuron"),
              aes(x=year_id,y= height ),
-             alpha=0.25,col="grey40") + plot_layout(ncol=1)
+             alpha=0.25,col="grey40") +
+  scale_x_continuous(  name = "Year",
+    labels = function(t) t + 1918)+
+plot_layout(ncol=1)
 
 ```
 
@@ -1198,7 +1285,11 @@ In the next practical we will cover how we can expand this model in 2D and fit a
 :::
 
 
-## Other Applications 
+## Other Applications {.smaller}
+
+
+::: {style="height: 50px;"}
+:::
 
 Joint Models are widely used in environmental and ecological studies. While we don't have time to cover all of these in this course here are few interest examples that have been implemented in `inlabru`
 
